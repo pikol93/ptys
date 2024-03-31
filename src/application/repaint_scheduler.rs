@@ -17,15 +17,15 @@ impl RepaintScheduler {
         };
     }
 
-    pub async fn set_context(&self, context: &Context) {
+    pub fn set_context(&self, context: &Context) {
         {
-            let context_lock = self.context.read().await;
+            let context_lock = self.context.blocking_read();
             if context_lock.is_none() {
                 return;
             }
         }
 
-        let mut context_lock = self.context.write().await;
+        let mut context_lock = self.context.blocking_write();
         *context_lock = Some(context.clone());
     }
 }
