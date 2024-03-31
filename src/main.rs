@@ -12,6 +12,7 @@ use crate::application::connections::view::ConnectionsView;
 use crate::application::menu::controller::MenuController;
 use crate::application::menu::view::MenuView;
 use crate::application::model::ApplicationModel;
+use crate::application::repaint_scheduler::RepaintScheduler;
 use crate::application::service::ApplicationService;
 use crate::application::view::ApplicationView;
 
@@ -25,6 +26,7 @@ fn main() {
     };
 
     let runtime = Arc::new(Runtime::new().unwrap());
+    let repaint_scheduler = Arc::new(RepaintScheduler::default());
 
     let application_model = Arc::new(RwLock::new(ApplicationModel::default()));
     let connections_model = Arc::new(RwLock::new(ConnectionsModel::default()));
@@ -59,6 +61,7 @@ fn main() {
     let app = App {
         model: application_model,
         view: application_view,
+        repaint_scheduler,
     };
 
     run_native("PTYS", options, Box::new(|_context| Box::new(app))).unwrap();

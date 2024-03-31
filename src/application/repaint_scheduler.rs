@@ -1,11 +1,9 @@
-use std::sync::Arc;
-
 use egui::Context;
 use tokio::sync::RwLock;
 
-#[derive(Clone, Default)]
+#[derive(Default)]
 pub struct RepaintScheduler {
-    context: Arc<RwLock<Option<Context>>>,
+    context: RwLock<Option<Context>>,
 }
 
 impl RepaintScheduler {
