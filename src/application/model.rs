@@ -1,4 +1,11 @@
+#[derive(Default, Copy, Clone, Eq, PartialEq)]
+pub enum DisplayedView {
+    #[default]
+    Menu,
+    Connections,
+}
+
 #[derive(Default)]
 pub struct ApplicationModel {
-    pub temporary: u32,
+    pub displayed_view: DisplayedView,
 }
