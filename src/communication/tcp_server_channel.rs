@@ -2,13 +2,15 @@ use std::net::TcpListener;
 
 #[derive(Debug)]
 pub struct TcpServerChannel {
-    port: u16,
+    pub id: u32,
+    pub port: u16,
     listener: Option<TcpListener>,
 }
 
 impl TcpServerChannel {
-    pub fn new(port: u16) -> Self {
+    pub fn new(id: u32, port: u16) -> Self {
         Self {
+            id,
             port,
             listener: None,
         }

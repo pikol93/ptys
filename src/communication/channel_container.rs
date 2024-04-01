@@ -30,8 +30,10 @@ impl ChannelContainer {
     }
 
     pub fn add_server(&mut self, port: u16) -> anyhow::Result<()> {
+        let id = self.get_next_id();
+
         self.channels
-            .push(NetworkChannel::TcpServer(TcpServerChannel::new(port)));
+            .push(NetworkChannel::TcpServer(TcpServerChannel::new(id, port)));
 
         let tx = self.channel_added_tx.clone();
         self.runtime.spawn(async move {
@@ -42,8 +44,11 @@ impl ChannelContainer {
     }
 
     pub fn add_client(&mut self, hostname: &str, port: u16) -> anyhow::Result<()> {
+        let id = self.get_next_id();
+
         self.channels
             .push(NetworkChannel::TcpClient(TcpClientChannel::new(
+                id,
                 hostname.to_string(),
                 port,
             )));
@@ -54,5 +59,15 @@ impl ChannelContainer {
         });
 
         Ok(())
+    }
+
+    fn get_highest_channel_id(&self) -> Option<u32> {
+        self.channels.iter().map(|channel| channel.id()).max()
+    }
+
+    fn get_next_id(&self) -> u32 {
+        self.get_highest_channel_id()
+            .map(|highest_id| highest_id + 1)
+            .unwrap_or(1)
     }
 }
