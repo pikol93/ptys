@@ -57,7 +57,7 @@ impl ConnectionsView {
 
         ui.horizontal(|ui| {
             if ui.button("Add connection").clicked() {
-                self.controller.button_clicked_connection_added();
+                self.controller.button_clicked_add_connection();
             }
             if let Some(error) = &model.error {
                 ui.label(error);
@@ -73,6 +73,16 @@ impl ConnectionsView {
                 ui.label(format!("{:?}", model.channel_type));
                 ui.label(model.hostname.to_string());
                 ui.label(model.port.to_string());
+                ui.label("TODO: STATE");
+                if ui.button("Start").clicked() {
+                    self.controller.button_clicked_connection_start(model.id);
+                }
+                if ui.button("Stop").clicked() {
+                    self.controller.button_clicked_connection_stop(model.id);
+                }
+                if ui.button("Delete").clicked() {
+                    self.controller.button_clicked_connection_remove(model.id);
+                }
                 ui.end_row();
             }
         });

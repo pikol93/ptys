@@ -23,7 +23,7 @@ impl ConnectionsController {
         // TODO: Add validation
     }
 
-    pub fn button_clicked_connection_added(&self) {
+    pub fn button_clicked_add_connection(&self) {
         let model = self.model.clone();
         let service = self.service.clone();
         let repaint_scheduler = self.repaint_scheduler.clone();
@@ -44,6 +44,18 @@ impl ConnectionsController {
 
             repaint_scheduler.schedule_now().await;
         });
+    }
+
+    pub fn button_clicked_connection_start(&self, id: u32) {
+        todo!();
+    }
+
+    pub fn button_clicked_connection_stop(&self, id: u32) {
+        todo!();
+    }
+
+    pub fn button_clicked_connection_remove(&self, id: u32) {
+        todo!();
     }
 
     pub fn button_clicked_back(&self) {
