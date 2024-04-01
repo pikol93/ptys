@@ -7,3 +7,4 @@ edition = "2021"
 egui = "0.27.1"
 eframe = "0.27.1"
 tokio = { version = "1.37.0", features = ["time", "rt", "rt-multi-thread", "sync", "fs", "io-util"] }
+anyhow = "1.0.81"
