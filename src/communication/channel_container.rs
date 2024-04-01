@@ -61,6 +61,19 @@ impl ChannelContainer {
         Ok(())
     }
 
+    pub fn remove_channel(&mut self, id: u32) {
+        let Some(index) = self.channels.iter().position(|channel| channel.id() == id) else {
+            return;
+        };
+
+        let channel = self.channels.swap_remove(index);
+
+        let tx = self.channel_removed_tx.clone();
+        self.runtime.spawn(async move {
+            tx.send(channel).await.unwrap();
+        });
+    }
+
     fn get_highest_channel_id(&self) -> Option<u32> {
         self.channels.iter().map(|channel| channel.id()).max()
     }

@@ -7,7 +7,9 @@ use tokio::sync::mpsc::channel;
 use tokio::sync::RwLock;
 
 use crate::app::App;
-use crate::application::channel_events_handler::start_handler_channel_added;
+use crate::application::channel_events_handler::{
+    start_handler_channel_added, start_handler_channel_removed,
+};
 use crate::application::connections::controller::ConnectionsController;
 use crate::application::connections::model::ConnectionsModel;
 use crate::application::connections::service::ConnectionsService;
@@ -84,6 +86,12 @@ fn main() {
     start_handler_channel_added(
         runtime.clone(),
         channel_added_rx,
+        connections_model.clone(),
+        repaint_scheduler.clone(),
+    );
+    start_handler_channel_removed(
+        runtime.clone(),
+        channel_removed_rx,
         connections_model,
         repaint_scheduler,
     );

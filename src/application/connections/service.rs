@@ -23,4 +23,8 @@ impl ConnectionsService {
                 .add_client(hostname, port),
         }
     }
+
+    pub async fn remove_connection(&self, id: u32) {
+        self.channel_container.write().await.remove_channel(id);
+    }
 }

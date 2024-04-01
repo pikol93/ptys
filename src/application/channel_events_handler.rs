@@ -36,3 +36,32 @@ pub fn start_handler_channel_added(
         }
     });
 }
+
+pub fn start_handler_channel_removed(
+    runtime: Arc<Runtime>,
+    mut rx: Receiver<Arc<NetworkChannel>>,
+    connections_model: Arc<RwLock<ConnectionsModel>>,
+    repaint_scheduler: Arc<RepaintScheduler>,
+) {
+    runtime.spawn(async move {
+        loop {
+            let Some(id) = rx.recv().await.map(|channel| channel.id()) else {
+                // No further events can be received at this point.
+                return;
+            };
+
+            let model = &mut connections_model
+                .write()
+                .await
+                .all_connections_model
+                .connections;
+
+            let Some(index) = model.iter().position(|model| model.id == id) else {
+                return;
+            };
+            model.remove(index);
+
+            repaint_scheduler.schedule_now().await;
+        }
+    });
+}

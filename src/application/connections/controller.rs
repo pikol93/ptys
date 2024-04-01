@@ -46,15 +46,19 @@ impl ConnectionsController {
         });
     }
 
+    pub fn button_clicked_connection_remove(&self, id: u32) {
+        let service = self.service.clone();
+
+        self.runtime.spawn(async move {
+            service.remove_connection(id).await;
+        });
+    }
+
     pub fn button_clicked_connection_start(&self, id: u32) {
         todo!();
     }
 
     pub fn button_clicked_connection_stop(&self, id: u32) {
-        todo!();
-    }
-
-    pub fn button_clicked_connection_remove(&self, id: u32) {
         todo!();
     }
 
