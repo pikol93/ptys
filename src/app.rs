@@ -19,7 +19,7 @@ impl eframe::App for App {
         self.repaint_scheduler.set_context(ctx);
 
         CentralPanel::default().show(ctx, |ui| {
-            self.view.display(ui);
+            self.view.display(ctx, ui);
         });
     }
 }

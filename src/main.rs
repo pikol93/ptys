@@ -8,6 +8,7 @@ use tokio::sync::RwLock;
 use crate::app::App;
 use crate::application::connections::controller::ConnectionsController;
 use crate::application::connections::model::ConnectionsModel;
+use crate::application::connections::service::ConnectionsService;
 use crate::application::connections::view::ConnectionsView;
 use crate::application::menu::controller::MenuController;
 use crate::application::menu::view::MenuView;
@@ -35,10 +36,14 @@ fn main() {
         model: application_model.clone(),
         runtime: runtime.clone(),
     });
+    let connections_service = Arc::new(ConnectionsService {});
 
     let connections_controller = Arc::new(ConnectionsController {
+        model: connections_model.clone(),
+        service: connections_service,
         application_service: application_service.clone(),
         runtime: runtime.clone(),
+        repaint_scheduler: repaint_scheduler.clone(),
     });
     let menu_controller = Arc::new(MenuController {
         application_service,

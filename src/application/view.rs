@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use egui::Ui;
+use egui::{Context, Ui};
 use tokio::sync::RwLock;
 
 use crate::application::connections::view::ConnectionsView;
@@ -14,11 +14,11 @@ pub struct ApplicationView {
 }
 
 impl ApplicationView {
-    pub fn display(&self, ui: &mut Ui) {
+    pub fn display(&self, context: &Context, ui: &mut Ui) {
         let displayed_view = self.model.blocking_write().displayed_view;
         match displayed_view {
             DisplayedView::Menu => self.menu_view.display(ui),
-            DisplayedView::Connections => self.connections_view.display(ui),
+            DisplayedView::Connections => self.connections_view.display(context, ui),
         }
     }
 }
