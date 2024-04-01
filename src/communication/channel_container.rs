@@ -53,6 +53,6 @@ impl ChannelContainer {
             tx.send(()).await.unwrap();
         });
 
-        todo!()
+        Ok(())
     }
 }
