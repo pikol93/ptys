@@ -3,6 +3,7 @@ use std::sync::Arc;
 use eframe::{run_native, NativeOptions};
 use egui::ViewportBuilder;
 use tokio::runtime::Runtime;
+use tokio::sync::mpsc::channel;
 use tokio::sync::RwLock;
 
 use crate::app::App;
@@ -16,9 +17,11 @@ use crate::application::model::ApplicationModel;
 use crate::application::repaint_scheduler::RepaintScheduler;
 use crate::application::service::ApplicationService;
 use crate::application::view::ApplicationView;
+use crate::communication::channel_container::ChannelContainer;
 
 mod app;
 pub mod application;
+mod communication;
 
 fn main() {
     let options = NativeOptions {
@@ -27,6 +30,14 @@ fn main() {
     };
 
     let runtime = Arc::new(Runtime::new().unwrap());
+    let (channel_added_tx, channel_added_rx) = channel(16);
+    let (channel_removed_tx, channel_removed_rx) = channel(16);
+    let channel_container = Arc::new(RwLock::new(ChannelContainer::new(
+        runtime.clone(),
+        channel_added_tx,
+        channel_removed_tx,
+    )));
+
     let repaint_scheduler = Arc::new(RepaintScheduler::default());
 
     let application_model = Arc::new(RwLock::new(ApplicationModel::default()));
@@ -36,7 +47,7 @@ fn main() {
         model: application_model.clone(),
         runtime: runtime.clone(),
     });
-    let connections_service = Arc::new(ConnectionsService {});
+    let connections_service = Arc::new(ConnectionsService { channel_container });
 
     let connections_controller = Arc::new(ConnectionsController {
         model: connections_model.clone(),

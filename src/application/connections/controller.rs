@@ -60,6 +60,6 @@ impl ConnectionsController {
         let port = u16::from_str(&model.port)?;
         let channel_type = model.channel_type;
 
-        service.add_connection(hostname, port, channel_type)
+        service.add_connection(hostname, port, channel_type).await
     }
 }
