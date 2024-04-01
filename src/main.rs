@@ -22,7 +22,7 @@ use crate::communication::channel_container::ChannelContainer;
 
 mod app;
 pub mod application;
-mod communication;
+pub mod communication;
 
 fn main() {
     let options = NativeOptions {

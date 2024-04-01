@@ -9,17 +9,17 @@ use crate::communication::tcp_server_channel::TcpServerChannel;
 
 #[derive(Debug)]
 pub struct ChannelContainer {
-    channels: Vec<NetworkChannel>,
+    channels: Vec<Arc<NetworkChannel>>,
     runtime: Arc<Runtime>,
-    channel_added_tx: Sender<()>,
-    channel_removed_tx: Sender<()>,
+    channel_added_tx: Sender<Arc<NetworkChannel>>,
+    channel_removed_tx: Sender<Arc<NetworkChannel>>,
 }
 
 impl ChannelContainer {
     pub fn new(
         runtime: Arc<Runtime>,
-        channel_added_tx: Sender<()>,
-        channel_removed_tx: Sender<()>,
+        channel_added_tx: Sender<Arc<NetworkChannel>>,
+        channel_removed_tx: Sender<Arc<NetworkChannel>>,
     ) -> Self {
         Self {
             channels: vec![],
@@ -32,12 +32,12 @@ impl ChannelContainer {
     pub fn add_server(&mut self, port: u16) -> anyhow::Result<()> {
         let id = self.get_next_id();
 
-        self.channels
-            .push(NetworkChannel::TcpServer(TcpServerChannel::new(id, port)));
+        let channel = Arc::new(NetworkChannel::TcpServer(TcpServerChannel::new(id, port)));
+        self.channels.push(channel.clone());
 
         let tx = self.channel_added_tx.clone();
         self.runtime.spawn(async move {
-            tx.send(()).await.unwrap();
+            tx.send(channel).await.unwrap();
         });
 
         Ok(())
@@ -46,16 +46,16 @@ impl ChannelContainer {
     pub fn add_client(&mut self, hostname: &str, port: u16) -> anyhow::Result<()> {
         let id = self.get_next_id();
 
-        self.channels
-            .push(NetworkChannel::TcpClient(TcpClientChannel::new(
-                id,
-                hostname.to_string(),
-                port,
-            )));
+        let channel = Arc::new(NetworkChannel::TcpClient(TcpClientChannel::new(
+            id,
+            hostname.to_string(),
+            port,
+        )));
+        self.channels.push(channel.clone());
 
         let tx = self.channel_added_tx.clone();
         self.runtime.spawn(async move {
-            tx.send(()).await.unwrap();
+            tx.send(channel).await.unwrap();
         });
 
         Ok(())

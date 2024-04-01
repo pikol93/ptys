@@ -1,5 +1,6 @@
 use crate::application::connections::model::{ConnectionsModel, SingleConnectionModel};
 use crate::application::repaint_scheduler::RepaintScheduler;
+use crate::communication::network_channel::NetworkChannel;
 use std::sync::Arc;
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc::Receiver;
@@ -7,13 +8,17 @@ use tokio::sync::RwLock;
 
 pub fn start_handler_channel_added(
     runtime: Arc<Runtime>,
-    mut rx: Receiver<()>,
+    mut rx: Receiver<Arc<NetworkChannel>>,
     connections_model: Arc<RwLock<ConnectionsModel>>,
     repaint_scheduler: Arc<RepaintScheduler>,
 ) {
     runtime.spawn(async move {
         loop {
-            rx.recv().await;
+            let Some(network_channel) = rx.recv().await else {
+                // No further events can be received at this point.
+                return;
+            };
+
             let model = &mut connections_model
                 .write()
                 .await
@@ -21,9 +26,10 @@ pub fn start_handler_channel_added(
                 .connections;
 
             model.push(SingleConnectionModel {
-                id: 0,
-                hostname: "".to_string(),
-                port: 0,
+                id: network_channel.id(),
+                channel_type: network_channel.channel_type(),
+                hostname: network_channel.hostname().to_string(),
+                port: network_channel.port(),
             });
 
             repaint_scheduler.schedule_now().await;

@@ -70,6 +70,7 @@ impl ConnectionsView {
         Grid::new("available_connections").show(ui, |ui| {
             for model in &model.connections {
                 ui.label(model.id.to_string());
+                ui.label(format!("{:?}", model.channel_type));
                 ui.label(model.hostname.to_string());
                 ui.label(model.port.to_string());
                 ui.end_row();

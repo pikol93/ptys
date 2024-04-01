@@ -27,7 +27,8 @@ impl Default for AddConnectionModel {
 
 #[derive(Debug)]
 pub struct SingleConnectionModel {
-    pub id: u64,
+    pub id: u32,
+    pub channel_type: ChannelType,
     pub hostname: String,
     pub port: u16,
 }
