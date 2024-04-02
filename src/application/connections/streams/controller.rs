@@ -4,13 +4,13 @@ use std::sync::Arc;
 use tokio::runtime::Runtime;
 use tokio::sync::RwLock;
 
+use crate::application::connections::streams::model::StreamsModel;
+use crate::application::connections::streams::service::StreamsService;
 use crate::application::model::DisplayedView;
 use crate::application::repaint_scheduler::RepaintScheduler;
 use crate::application::service::ApplicationService;
-use crate::application::streams::model::StreamsModel;
-use crate::application::streams::service::StreamsService;
 
-pub struct ConnectionsController {
+pub struct StreamsController {
     pub model: Arc<RwLock<StreamsModel>>,
     pub service: Arc<StreamsService>,
     pub application_service: Arc<ApplicationService>,
@@ -18,7 +18,7 @@ pub struct ConnectionsController {
     pub repaint_scheduler: Arc<RepaintScheduler>,
 }
 
-impl ConnectionsController {
+impl StreamsController {
     pub fn validate_add_connection_fields(&self) {
         // TODO: Add validation
     }

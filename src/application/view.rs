@@ -3,14 +3,14 @@ use std::sync::Arc;
 use egui::{Context, Ui};
 use tokio::sync::RwLock;
 
+use crate::application::connections::view::ConnectionsView;
 use crate::application::menu::view::MenuView;
 use crate::application::model::{ApplicationModel, DisplayedView};
-use crate::application::streams::view::StreamsView;
 
 pub struct ApplicationView {
     pub model: Arc<RwLock<ApplicationModel>>,
     pub menu_view: Arc<MenuView>,
-    pub connections_view: Arc<StreamsView>,
+    pub connections_view: Arc<ConnectionsView>,
 }
 
 impl ApplicationView {
