@@ -1,7 +1,6 @@
+pub mod app;
 pub mod channel_events_handler;
-pub mod connections;
-pub mod menu;
-pub mod model;
+pub mod listeners;
 pub mod repaint_scheduler;
-pub mod service;
-pub mod view;
+pub mod streams;
+mod window_view;

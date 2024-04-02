@@ -3,26 +3,30 @@ use std::sync::Arc;
 use egui::{Context, Grid, RichText, Ui};
 use tokio::sync::RwLock;
 
-use crate::application::connections::streams::controller::StreamsController;
-use crate::application::connections::streams::model::{AddStreamModel, StreamModel, StreamsModel};
+use crate::application::streams::controller::StreamsController;
+use crate::application::streams::model::{AddStreamModel, StreamModel, StreamsModel};
+use crate::application::window_view::WindowView;
 
 pub struct StreamsView {
     pub model: Arc<RwLock<StreamsModel>>,
     pub controller: Arc<StreamsController>,
 }
 
-impl StreamsView {
-    pub fn display(&self, _context: &Context, ui: &mut Ui) {
+impl WindowView for StreamsView {
+    fn get_title(&self) -> &'static str {
+        "Streams"
+    }
+
+    fn display(&self, _context: &Context, ui: &mut Ui) {
         let mut model = self.model.blocking_write();
 
         ui.label(RichText::new("PTYS streams").size(22.0));
         self.display_add_connection_section(ui, &mut model.add_connection_model);
         self.display_connection_list(ui, &model.get_connection_models());
-        if ui.button("Back").clicked() {
-            self.controller.button_clicked_back();
-        }
     }
+}
 
+impl StreamsView {
     fn display_add_connection_section(&self, ui: &mut Ui, model: &mut AddStreamModel) {
         ui.heading("Connect");
         ui.horizontal(|ui| {
