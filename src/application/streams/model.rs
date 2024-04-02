@@ -1,5 +1,3 @@
-use crate::communication::tcp_stream_container::TcpStreamContainer;
-
 #[derive(Debug)]
 pub struct AddStreamModel {
     pub hostname: String,
@@ -24,30 +22,8 @@ pub struct StreamModel {
     pub port: u16,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct StreamsModel {
     pub add_connection_model: AddStreamModel,
-    stream_container: TcpStreamContainer,
-}
-
-impl StreamsModel {
-    pub fn new(stream_container: TcpStreamContainer) -> Self {
-        Self {
-            add_connection_model: Default::default(),
-            stream_container,
-        }
-    }
-
-    pub fn get_connection_models(&self) -> Vec<StreamModel> {
-        self.stream_container
-            .streams
-            .blocking_read()
-            .iter()
-            .map(|entry| StreamModel {
-                id: entry.id,
-                parent_id: entry.parent_id,
-                port: 0,
-            })
-            .collect()
-    }
+    pub stream_models: Vec<StreamModel>,
 }

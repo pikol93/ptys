@@ -22,7 +22,6 @@ impl WindowView for StreamsView {
 
         ui.label(RichText::new("PTYS streams").size(22.0));
         self.display_add_connection_section(ui, &mut model.add_connection_model);
-        self.display_connection_list(ui, &model.get_connection_models());
     }
 }
 

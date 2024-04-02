@@ -6,6 +6,7 @@ use tokio::net::tcp::{OwnedReadHalf, OwnedWriteHalf};
 use tokio::net::TcpStream;
 use tokio::runtime::Runtime;
 use tokio::select;
+use tokio::sync::mpsc::Sender;
 use tokio::sync::RwLock;
 use tokio_util::sync::CancellationToken;
 
@@ -74,15 +75,23 @@ impl StreamEntry {
 
 #[derive(Clone, Debug)]
 pub struct TcpStreamContainer {
-    pub streams: Arc<RwLock<Vec<StreamEntry>>>,
+    pub streams: Arc<RwLock<Vec<Arc<StreamEntry>>>>,
     runtime: Arc<Runtime>,
+    stream_added_tx: Sender<Arc<StreamEntry>>,
+    stream_removed_tx: Sender<Arc<StreamEntry>>,
 }
 
 impl TcpStreamContainer {
-    pub fn new(runtime: Arc<Runtime>) -> Self {
+    pub fn new(
+        runtime: Arc<Runtime>,
+        stream_added_tx: Sender<Arc<StreamEntry>>,
+        stream_removed_tx: Sender<Arc<StreamEntry>>,
+    ) -> Self {
         Self {
             streams: Arc::new(RwLock::new(vec![])),
             runtime,
+            stream_added_tx,
+            stream_removed_tx,
         }
     }
 
@@ -96,8 +105,14 @@ impl TcpStreamContainer {
             .map(|max| max + 1)
             .unwrap_or(1);
 
-        let entry = StreamEntry::new(id, parent_id, stream, self.runtime.as_ref());
+        let entry = Arc::new(StreamEntry::new(
+            id,
+            parent_id,
+            stream,
+            self.runtime.as_ref(),
+        ));
         let token = entry.token.clone();
+        self.stream_added_tx.send(entry.clone()).await.unwrap();
         streams.push(entry);
 
         self.hook_token_cancellation(id, token);
@@ -115,11 +130,15 @@ impl TcpStreamContainer {
 
     fn hook_token_cancellation(&self, id: u32, token: CancellationToken) {
         let streams = self.streams.clone();
+        let tx = self.stream_removed_tx.clone();
+
         self.runtime.spawn(async move {
             token.cancelled().await;
             let mut entries = streams.write().await;
             let position = entries.iter().position(|entry| entry.id == id).unwrap();
-            entries.remove(position);
+            let removed = entries.remove(position);
+
+            tx.send(removed).await.unwrap();
         });
     }
 }
