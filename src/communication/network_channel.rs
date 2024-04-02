@@ -1,6 +1,8 @@
 use crate::application::connections::model::ChannelType;
 use crate::communication::tcp_client_channel::TcpClientChannel;
 use crate::communication::tcp_server_channel::TcpServerChannel;
+use std::sync::Arc;
+use tokio::runtime::Runtime;
 
 #[derive(Debug)]
 pub enum NetworkChannel {
@@ -34,6 +36,20 @@ impl NetworkChannel {
         match self {
             NetworkChannel::TcpServer(channel) => channel.port,
             NetworkChannel::TcpClient(channel) => channel.port,
+        }
+    }
+
+    pub async fn start(&self, runtime: Arc<Runtime>) -> anyhow::Result<()> {
+        match self {
+            NetworkChannel::TcpServer(_) => todo!(),
+            NetworkChannel::TcpClient(channel) => channel.start(runtime).await,
+        }
+    }
+
+    pub async fn stop(&self) -> anyhow::Result<()> {
+        match self {
+            NetworkChannel::TcpServer(_) => todo!(),
+            NetworkChannel::TcpClient(channel) => channel.stop().await,
         }
     }
 }

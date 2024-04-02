@@ -1,3 +1,4 @@
+use anyhow::Error;
 use std::sync::Arc;
 
 use tokio::runtime::Runtime;
@@ -72,6 +73,22 @@ impl ChannelContainer {
         self.runtime.spawn(async move {
             tx.send(channel).await.unwrap();
         });
+    }
+
+    pub async fn start_connection(&self, id: u32) -> anyhow::Result<()> {
+        let Some(channel) = self.channels.iter().find(|channel| channel.id() == id) else {
+            return Err(Error::msg("Could not find channel."));
+        };
+
+        channel.start(self.runtime.clone()).await
+    }
+
+    pub async fn stop_connection(&self, id: u32) -> anyhow::Result<()> {
+        let Some(channel) = self.channels.iter().find(|channel| channel.id() == id) else {
+            return Err(Error::msg("Could not find channel."));
+        };
+
+        channel.stop().await
     }
 
     fn get_highest_channel_id(&self) -> Option<u32> {

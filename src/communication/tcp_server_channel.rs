@@ -1,3 +1,4 @@
+use anyhow::Error;
 use std::net::TcpListener;
 
 #[derive(Debug)]
@@ -14,5 +15,15 @@ impl TcpServerChannel {
             port,
             listener: None,
         }
+    }
+
+    pub fn start(&mut self) -> anyhow::Result<()> {
+        if self.listener.is_some() {
+            return Err(Error::msg("Server is already started."));
+        }
+
+        self.listener = Some(TcpListener::bind(("0.0.0.0", self.port))?);
+
+        Ok(())
     }
 }

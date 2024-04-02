@@ -55,11 +55,19 @@ impl ConnectionsController {
     }
 
     pub fn button_clicked_connection_start(&self, id: u32) {
-        todo!();
+        let service = self.service.clone();
+
+        self.runtime.spawn(async move {
+            service.start_connection(id).await;
+        });
     }
 
     pub fn button_clicked_connection_stop(&self, id: u32) {
-        todo!();
+        let service = self.service.clone();
+
+        self.runtime.spawn(async move {
+            service.stop_connection(id).await;
+        });
     }
 
     pub fn button_clicked_back(&self) {

@@ -27,4 +27,24 @@ impl ConnectionsService {
     pub async fn remove_connection(&self, id: u32) {
         self.channel_container.write().await.remove_channel(id);
     }
+
+    pub async fn start_connection(&self, id: u32) {
+        let a = self
+            .channel_container
+            .read()
+            .await
+            .start_connection(id)
+            .await;
+        println!("start_connection result: {:?}", a);
+    }
+
+    pub async fn stop_connection(&self, id: u32) {
+        let a = self
+            .channel_container
+            .read()
+            .await
+            .stop_connection(id)
+            .await;
+        println!("stop_connection result: {:?}", a);
+    }
 }
