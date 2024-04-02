@@ -4,9 +4,7 @@ use egui::{Context, Grid, RichText, Ui};
 use tokio::sync::RwLock;
 
 use crate::application::streams::controller::ConnectionsController;
-use crate::application::streams::model::{
-    AddStreamModel, StreamModel, StreamsModel,
-};
+use crate::application::streams::model::{AddStreamModel, StreamModel, StreamsModel};
 
 pub struct StreamsView {
     pub model: Arc<RwLock<StreamsModel>>,

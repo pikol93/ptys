@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use eframe::{NativeOptions, run_native};
+use eframe::{run_native, NativeOptions};
 use egui::ViewportBuilder;
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc::channel;
