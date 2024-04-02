@@ -1,14 +1,11 @@
 use std::sync::Arc;
 
-use eframe::{run_native, NativeOptions};
+use eframe::{NativeOptions, run_native};
 use egui::ViewportBuilder;
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc::channel;
 use tokio::sync::RwLock;
 
-use crate::application::channel_events_handler::{
-    start_handler_stream_added, start_handler_stream_removed,
-};
 use crate::application::listeners::view::ListenersView;
 use crate::application::repaint_scheduler::RepaintScheduler;
 use crate::application::streams::controller::StreamsController;
@@ -17,9 +14,11 @@ use crate::application::streams::service::StreamsService;
 use crate::application::streams::view::StreamsView;
 use crate::communication::tcp_stream_container::TcpStreamContainer;
 use application::app::App;
+use crate::channel_events_handler::{start_handler_stream_added, start_handler_stream_removed};
 
 pub mod application;
 pub mod communication;
+pub mod channel_events_handler;
 
 fn main() {
     let options = NativeOptions {
