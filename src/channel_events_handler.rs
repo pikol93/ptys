@@ -2,14 +2,17 @@ use std::sync::Arc;
 
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc::Receiver;
+use tokio::sync::RwLock;
 
 use crate::application::repaint_scheduler::RepaintScheduler;
+use crate::application::streams::model::{StreamModel, StreamsModel};
 use crate::communication::tcp_stream_container::StreamEntry;
 
 pub fn start_handler_stream_added(
     runtime: Arc<Runtime>,
     mut rx: Receiver<Arc<StreamEntry>>,
     repaint_scheduler: Arc<RepaintScheduler>,
+    streams_model: Arc<RwLock<StreamsModel>>,
 ) {
     runtime.spawn(async move {
         loop {
@@ -18,7 +21,14 @@ pub fn start_handler_stream_added(
                 return;
             };
 
-            println!("added {}, {:?}", stream.id, stream.parent_id);
+            let stream_model = StreamModel {
+                id: stream.id,
+                parent_id: stream.parent_id,
+                port: 1234,
+            };
+
+            let mut model = streams_model.write().await;
+            model.stream_models.push(stream_model);
 
             repaint_scheduler.schedule_now().await;
         }
@@ -29,6 +39,7 @@ pub fn start_handler_stream_removed(
     runtime: Arc<Runtime>,
     mut rx: Receiver<Arc<StreamEntry>>,
     repaint_scheduler: Arc<RepaintScheduler>,
+    streams_model: Arc<RwLock<StreamsModel>>,
 ) {
     runtime.spawn(async move {
         loop {
@@ -37,7 +48,16 @@ pub fn start_handler_stream_removed(
                 return;
             };
 
-            println!("removed {}, {:?}", stream.id, stream.parent_id);
+            let mut model = streams_model.write().await;
+            let Some(index) = model
+                .stream_models
+                .iter()
+                .position(|item| item.id == stream.id)
+            else {
+                break;
+            };
+
+            model.stream_models.remove(index);
 
             repaint_scheduler.schedule_now().await;
         }

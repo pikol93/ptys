@@ -22,6 +22,7 @@ impl WindowView for StreamsView {
 
         ui.label(RichText::new("PTYS streams").size(22.0));
         self.display_add_connection_section(ui, &mut model.add_connection_model);
+        self.display_connection_list(ui, &model.stream_models);
     }
 }
 
@@ -49,10 +50,6 @@ impl StreamsView {
                 ui.label(error);
             }
         });
-    }
-
-    fn display_listener_list(&self, ui: &mut Ui) {
-        ui.label("TODO");
     }
 
     fn display_connection_list(&self, ui: &mut Ui, models: &[StreamModel]) {

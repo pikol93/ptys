@@ -52,7 +52,17 @@ fn main() {
         repaint_scheduler.clone(),
     );
 
-    start_handler_stream_added(runtime.clone(), stream_added_rx, repaint_scheduler.clone());
-    start_handler_stream_removed(runtime.clone(), stream_removed_rx, repaint_scheduler);
+    start_handler_stream_added(
+        runtime.clone(),
+        stream_added_rx,
+        repaint_scheduler.clone(),
+        streams_model.clone(),
+    );
+    start_handler_stream_removed(
+        runtime.clone(),
+        stream_removed_rx,
+        repaint_scheduler,
+        streams_model.clone(),
+    );
     run_native("PTYS", options, Box::new(|_context| Box::new(app))).unwrap();
 }
