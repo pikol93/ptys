@@ -1,18 +1,18 @@
 use std::str::FromStr;
 use std::sync::Arc;
 
-use crate::application::connections::model::ConnectionsModel;
-use crate::application::connections::service::ConnectionsService;
 use tokio::runtime::Runtime;
 use tokio::sync::RwLock;
 
 use crate::application::model::DisplayedView;
 use crate::application::repaint_scheduler::RepaintScheduler;
 use crate::application::service::ApplicationService;
+use crate::application::streams::model::StreamsModel;
+use crate::application::streams::service::StreamsService;
 
 pub struct ConnectionsController {
-    pub model: Arc<RwLock<ConnectionsModel>>,
-    pub service: Arc<ConnectionsService>,
+    pub model: Arc<RwLock<StreamsModel>>,
+    pub service: Arc<StreamsService>,
     pub application_service: Arc<ApplicationService>,
     pub runtime: Arc<Runtime>,
     pub repaint_scheduler: Arc<RepaintScheduler>,
@@ -29,7 +29,7 @@ impl ConnectionsController {
         let repaint_scheduler = self.repaint_scheduler.clone();
 
         self.runtime.spawn(async move {
-            let result = Self::add_connection(&model, &service).await;
+            let result = Self::add_stream(&model, &service).await;
             let model = &mut model.write().await.add_connection_model;
             match result {
                 Ok(_) => {
@@ -46,27 +46,12 @@ impl ConnectionsController {
         });
     }
 
-    pub fn button_clicked_connection_remove(&self, id: u32) {
-        let service = self.service.clone();
-
-        self.runtime.spawn(async move {
-            service.remove_connection(id).await;
-        });
-    }
-
-    pub fn button_clicked_connection_start(&self, id: u32) {
-        let service = self.service.clone();
-
-        self.runtime.spawn(async move {
-            service.start_connection(id).await;
-        });
-    }
-
     pub fn button_clicked_connection_stop(&self, id: u32) {
         let service = self.service.clone();
 
         self.runtime.spawn(async move {
-            service.stop_connection(id).await;
+            let result = service.stop_stream(id).await;
+            println!("Stop result: {:?}", result);
         });
     }
 
@@ -75,15 +60,14 @@ impl ConnectionsController {
             .change_displayed_view(DisplayedView::Menu);
     }
 
-    async fn add_connection(
-        model: &Arc<RwLock<ConnectionsModel>>,
-        service: &Arc<ConnectionsService>,
+    async fn add_stream(
+        model: &Arc<RwLock<StreamsModel>>,
+        service: &Arc<StreamsService>,
     ) -> anyhow::Result<()> {
         let model = &model.read().await.add_connection_model;
         let hostname = model.hostname.as_str();
         let port = u16::from_str(&model.port)?;
-        let channel_type = model.channel_type;
 
-        service.add_connection(hostname, port, channel_type).await
+        service.add_stream(hostname, port).await
     }
 }

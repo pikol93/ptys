@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use eframe::{run_native, NativeOptions};
+use eframe::{NativeOptions, run_native};
 use egui::ViewportBuilder;
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc::channel;
@@ -8,19 +8,19 @@ use tokio::sync::RwLock;
 
 use crate::app::App;
 use crate::application::channel_events_handler::{
-    start_handler_channel_added, start_handler_channel_removed,
+    start_handler_stream_added, start_handler_stream_removed,
 };
-use crate::application::connections::controller::ConnectionsController;
-use crate::application::connections::model::ConnectionsModel;
-use crate::application::connections::service::ConnectionsService;
-use crate::application::connections::view::ConnectionsView;
 use crate::application::menu::controller::MenuController;
 use crate::application::menu::view::MenuView;
 use crate::application::model::ApplicationModel;
 use crate::application::repaint_scheduler::RepaintScheduler;
 use crate::application::service::ApplicationService;
+use crate::application::streams::controller::ConnectionsController;
+use crate::application::streams::model::StreamsModel;
+use crate::application::streams::service::StreamsService;
+use crate::application::streams::view::StreamsView;
 use crate::application::view::ApplicationView;
-use crate::communication::channel_container::ChannelContainer;
+use crate::communication::tcp_stream_container::TcpStreamContainer;
 
 mod app;
 pub mod application;
@@ -33,24 +33,20 @@ fn main() {
     };
 
     let runtime = Arc::new(Runtime::new().unwrap());
+    let stream_container = TcpStreamContainer::new(runtime.clone());
     let (channel_added_tx, channel_added_rx) = channel(16);
     let (channel_removed_tx, channel_removed_rx) = channel(16);
-    let channel_container = Arc::new(RwLock::new(ChannelContainer::new(
-        runtime.clone(),
-        channel_added_tx,
-        channel_removed_tx,
-    )));
 
     let repaint_scheduler = Arc::new(RepaintScheduler::default());
 
     let application_model = Arc::new(RwLock::new(ApplicationModel::default()));
-    let connections_model = Arc::new(RwLock::new(ConnectionsModel::default()));
+    let connections_model = Arc::new(RwLock::new(StreamsModel::new(stream_container.clone())));
 
     let application_service = Arc::new(ApplicationService {
         model: application_model.clone(),
         runtime: runtime.clone(),
     });
-    let connections_service = Arc::new(ConnectionsService { channel_container });
+    let connections_service = Arc::new(StreamsService { stream_container });
 
     let connections_controller = Arc::new(ConnectionsController {
         model: connections_model.clone(),
@@ -67,7 +63,7 @@ fn main() {
     let menu_view = Arc::new(MenuView {
         controller: menu_controller,
     });
-    let connections_view = Arc::new(ConnectionsView {
+    let connections_view = Arc::new(StreamsView {
         model: connections_model.clone(),
         controller: connections_controller,
     });
@@ -83,17 +79,7 @@ fn main() {
         repaint_scheduler: repaint_scheduler.clone(),
     };
 
-    start_handler_channel_added(
-        runtime.clone(),
-        channel_added_rx,
-        connections_model.clone(),
-        repaint_scheduler.clone(),
-    );
-    start_handler_channel_removed(
-        runtime.clone(),
-        channel_removed_rx,
-        connections_model,
-        repaint_scheduler,
-    );
+    start_handler_stream_added(runtime.clone(), channel_added_rx, repaint_scheduler.clone());
+    start_handler_stream_removed(runtime.clone(), channel_removed_rx, repaint_scheduler);
     run_native("PTYS", options, Box::new(|_context| Box::new(app))).unwrap();
 }
