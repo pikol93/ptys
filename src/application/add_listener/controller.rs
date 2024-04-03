@@ -7,7 +7,7 @@ use tokio::sync::RwLock;
 
 use crate::application::add_listener::model::AddListenerModel;
 use crate::application::repaint_scheduler::RepaintScheduler;
-use crate::communication::tcp_listener_container::TcpListenersContainer;
+use crate::communication::listeners::tcp_listener_container::TcpListenersContainer;
 
 pub struct AddListenerController {
     pub model: Arc<RwLock<AddListenerModel>>,

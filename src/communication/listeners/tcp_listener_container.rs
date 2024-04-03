@@ -2,32 +2,13 @@ use anyhow::Error;
 use std::sync::Arc;
 use tokio::net::TcpListener;
 
-use crate::communication::tcp_stream_container::TcpStreamContainer;
+use crate::communication::listeners::listener_entry::ListenerEntry;
+use crate::communication::streams::tcp_stream_container::TcpStreamContainer;
 use tokio::runtime::Runtime;
 use tokio::select;
 use tokio::sync::mpsc::Sender;
 use tokio::sync::RwLock;
 use tokio_util::sync::CancellationToken;
-
-pub struct ListenerEntry {
-    pub id: u32,
-    token: CancellationToken,
-}
-
-impl ListenerEntry {
-    pub fn new(id: u32) -> Self {
-        Self {
-            id,
-            token: CancellationToken::new(),
-        }
-    }
-}
-
-impl ListenerEntry {
-    pub fn cancel(&self) {
-        self.token.cancel();
-    }
-}
 
 #[derive(Clone)]
 pub struct TcpListenersContainer {
@@ -65,7 +46,7 @@ impl TcpListenersContainer {
             .unwrap_or(1);
 
         let entry = Arc::new(ListenerEntry::new(id));
-        let token = entry.token.clone();
+        let token = entry.clone_token();
         streams.push(entry.clone());
 
         self.hook_token_cancellation(id, token.clone());

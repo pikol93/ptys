@@ -1,6 +1,6 @@
 use crate::application::listeners::model::{ListenerModel, ListenersModel};
 use crate::application::repaint_scheduler::RepaintScheduler;
-use crate::communication::tcp_listener_container::ListenerEntry;
+use crate::communication::listeners::listener_entry::ListenerEntry;
 use std::sync::Arc;
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc::Receiver;

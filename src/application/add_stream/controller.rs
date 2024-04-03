@@ -7,7 +7,7 @@ use tokio::sync::RwLock;
 
 use crate::application::add_stream::model::AddStreamModel;
 use crate::application::repaint_scheduler::RepaintScheduler;
-use crate::communication::tcp_stream_container::TcpStreamContainer;
+use crate::communication::streams::tcp_stream_container::TcpStreamContainer;
 
 pub struct AddStreamController {
     pub model: Arc<RwLock<AddStreamModel>>,

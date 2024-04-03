@@ -16,8 +16,8 @@ use crate::application::listeners::view::ListenersView;
 use crate::application::repaint_scheduler::RepaintScheduler;
 use crate::application::streams::controller::StreamsController;
 use crate::application::streams::view::StreamsView;
-use crate::communication::tcp_listener_container::TcpListenersContainer;
-use crate::communication::tcp_stream_container::TcpStreamContainer;
+use crate::communication::listeners::tcp_listener_container::TcpListenersContainer;
+use crate::communication::streams::tcp_stream_container::TcpStreamContainer;
 use crate::listeners_events_handler::{
     start_handler_listener_added, start_handler_listener_removed,
 };

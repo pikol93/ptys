@@ -6,7 +6,7 @@ use tokio::sync::RwLock;
 
 use crate::application::repaint_scheduler::RepaintScheduler;
 use crate::application::streams::model::{StreamModel, StreamsModel};
-use crate::communication::tcp_stream_container::StreamEntry;
+use crate::communication::streams::stream_entry::StreamEntry;
 
 pub fn start_handler_stream_added(
     runtime: Arc<Runtime>,
