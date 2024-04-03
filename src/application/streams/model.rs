@@ -4,6 +4,7 @@ pub struct StreamModel {
     pub parent_id: Option<u32>,
     pub port: u16,
     pub received_bytes_amount: u64,
+    pub most_recent_bytes: Vec<u8>,
 }
 
 impl StreamModel {
@@ -13,6 +14,7 @@ impl StreamModel {
             parent_id,
             port,
             received_bytes_amount: 0,
+            most_recent_bytes: vec![],
         }
     }
 }

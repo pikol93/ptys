@@ -75,6 +75,8 @@ pub fn start_handler_stream_data_received(
             };
 
             stream.received_bytes_amount += event.data.len() as u64;
+            stream.most_recent_bytes = event.data;
+
             repaint_scheduler.schedule_now().await;
         }
     });

@@ -8,6 +8,8 @@ use crate::application::streams::controller::StreamsController;
 use crate::application::streams::model::StreamsModel;
 use crate::application::window_view::WindowView;
 
+const MAX_DISPLAYED_MOST_RECENT_BYTES: usize = 32;
+
 pub struct StreamsView {
     pub model: Arc<RwLock<StreamsModel>>,
     pub controller: Arc<StreamsController>,
@@ -36,6 +38,15 @@ impl WindowView for StreamsView {
                 }
 
                 ui.label(model.received_bytes_amount.to_string());
+
+                let bytes_to_display = model
+                    .most_recent_bytes
+                    .len()
+                    .min(MAX_DISPLAYED_MOST_RECENT_BYTES);
+                ui.label(format!(
+                    "{:02X?}",
+                    &model.most_recent_bytes[..bytes_to_display]
+                ));
                 ui.end_row();
             }
         });
