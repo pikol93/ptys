@@ -1,3 +1,4 @@
+pub mod add_listener;
 pub mod app;
 pub mod listeners;
 pub mod repaint_scheduler;
