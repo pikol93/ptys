@@ -10,6 +10,7 @@ use crate::application::add_listener::controller::AddListenerController;
 use crate::application::add_listener::view::AddListenerView;
 use crate::application::add_stream::controller::AddStreamController;
 use crate::application::add_stream::view::AddStreamView;
+use crate::application::application_information::view::ApplicationInformationView;
 use crate::application::listeners::controller::ListenersController;
 use crate::application::listeners::view::ListenersView;
 use crate::application::repaint_scheduler::RepaintScheduler;
@@ -96,6 +97,7 @@ fn main() {
         model: add_stream_model,
         controller: add_stream_controller,
     });
+    let application_information_view = Box::new(ApplicationInformationView {});
 
     let app = App::new(
         vec![
@@ -103,6 +105,7 @@ fn main() {
             listeners_view,
             add_listeners_view,
             add_stream_view,
+            application_information_view,
         ],
         repaint_scheduler.clone(),
     );

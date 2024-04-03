@@ -1,3 +1,4 @@
+use eframe::Frame;
 use std::sync::Arc;
 
 use egui::{Context, Ui};
@@ -17,7 +18,7 @@ impl WindowView for AddStreamView {
         "Add stream"
     }
 
-    fn display(&self, _context: &Context, ui: &mut Ui) {
+    fn display(&self, _context: &Context, _frame: &mut Frame, ui: &mut Ui) {
         let mut model = self.model.blocking_write();
 
         ui.heading("Connect");

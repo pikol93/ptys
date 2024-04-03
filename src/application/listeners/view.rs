@@ -1,3 +1,4 @@
+use eframe::Frame;
 use std::sync::Arc;
 
 use egui::{Context, Grid, Ui};
@@ -17,7 +18,7 @@ impl WindowView for ListenersView {
         "Listeners"
     }
 
-    fn display(&self, _context: &Context, ui: &mut Ui) {
+    fn display(&self, _context: &Context, _frame: &mut Frame, ui: &mut Ui) {
         let model = self.model.blocking_read();
 
         ui.heading("Listeners");

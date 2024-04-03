@@ -13,14 +13,14 @@ pub struct App {
 }
 
 impl eframe::App for App {
-    fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
+    fn update(&mut self, ctx: &Context, frame: &mut Frame) {
         self.repaint_scheduler.set_context(ctx);
 
         CentralPanel::default().show(ctx, |_ui| {
             self.views.iter().enumerate().for_each(|(index, view)| {
                 Window::new(view.get_title())
                     .open(self.visibility.get_mut(index).unwrap())
-                    .show(ctx, |ui| view.display(ctx, ui));
+                    .show(ctx, |ui| view.display(ctx, frame, ui));
             });
         });
     }
