@@ -21,7 +21,9 @@ use crate::communication::streams::tcp_stream_container::TcpStreamContainer;
 use crate::listeners_events_handler::{
     start_handler_listener_added, start_handler_listener_removed,
 };
-use crate::streams_events_handler::{start_handler_stream_added, start_handler_stream_removed};
+use crate::streams_events_handler::{
+    start_handler_stream_added, start_handler_stream_data_received, start_handler_stream_removed,
+};
 use application::app::App;
 
 pub mod application;
@@ -38,10 +40,15 @@ fn main() {
     let runtime = Arc::new(Runtime::new().unwrap());
     let (listener_added_tx, listener_added_rx) = channel(16);
     let (listener_removed_tx, listener_removed_rx) = channel(16);
+    let (stream_data_received_tx, stream_data_received_rx) = channel(16);
     let (stream_added_tx, stream_added_rx) = channel(16);
     let (stream_removed_tx, stream_removed_rx) = channel(16);
-    let stream_container =
-        TcpStreamContainer::new(runtime.clone(), stream_added_tx, stream_removed_tx);
+    let stream_container = TcpStreamContainer::new(
+        runtime.clone(),
+        stream_added_tx,
+        stream_removed_tx,
+        stream_data_received_tx,
+    );
     let listeners_container = TcpListenersContainer::new(
         stream_container.clone(),
         runtime.clone(),
@@ -119,6 +126,12 @@ fn main() {
     start_handler_stream_removed(
         runtime.clone(),
         stream_removed_rx,
+        repaint_scheduler.clone(),
+        streams_model.clone(),
+    );
+    start_handler_stream_data_received(
+        runtime.clone(),
+        stream_data_received_rx,
         repaint_scheduler.clone(),
         streams_model.clone(),
     );

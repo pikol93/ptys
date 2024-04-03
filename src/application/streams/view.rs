@@ -34,6 +34,8 @@ impl WindowView for StreamsView {
                 if ui.button("Stop").clicked() {
                     self.controller.button_clicked_connection_stop(model.id);
                 }
+
+                ui.label(model.received_bytes_amount.to_string());
                 ui.end_row();
             }
         });
