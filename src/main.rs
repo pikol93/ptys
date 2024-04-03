@@ -15,14 +15,14 @@ use crate::application::listeners::view::ListenersView;
 use crate::application::repaint_scheduler::RepaintScheduler;
 use crate::application::streams::controller::StreamsController;
 use crate::application::streams::view::StreamsView;
-use crate::channel_events_handler::{start_handler_stream_added, start_handler_stream_removed};
 use crate::communication::tcp_listener_container::TcpListenersContainer;
 use crate::communication::tcp_stream_container::TcpStreamContainer;
+use crate::streams_events_handler::{start_handler_stream_added, start_handler_stream_removed};
 use application::app::App;
 
 pub mod application;
-pub mod channel_events_handler;
 pub mod communication;
+pub mod streams_events_handler;
 
 fn main() {
     let options = NativeOptions {
