@@ -6,5 +6,5 @@ pub struct ListenerModel {
 
 #[derive(Debug, Default)]
 pub struct ListenersModel {
-    pub stream_models: Vec<ListenerModel>,
+    pub listeners_models: Vec<ListenerModel>,
 }

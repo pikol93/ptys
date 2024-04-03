@@ -17,11 +17,15 @@ use crate::application::streams::controller::StreamsController;
 use crate::application::streams::view::StreamsView;
 use crate::communication::tcp_listener_container::TcpListenersContainer;
 use crate::communication::tcp_stream_container::TcpStreamContainer;
+use crate::listeners_events_handler::{
+    start_handler_listener_added, start_handler_listener_removed,
+};
 use crate::streams_events_handler::{start_handler_stream_added, start_handler_stream_removed};
 use application::app::App;
 
 pub mod application;
 pub mod communication;
+mod listeners_events_handler;
 pub mod streams_events_handler;
 
 fn main() {
@@ -31,11 +35,18 @@ fn main() {
     };
 
     let runtime = Arc::new(Runtime::new().unwrap());
+    let (listener_added_tx, listener_added_rx) = channel(16);
+    let (listener_removed_tx, listener_removed_rx) = channel(16);
     let (stream_added_tx, stream_added_rx) = channel(16);
     let (stream_removed_tx, stream_removed_rx) = channel(16);
     let stream_container =
         TcpStreamContainer::new(runtime.clone(), stream_added_tx, stream_removed_tx);
-    let listeners_container = TcpListenersContainer::new(stream_container.clone(), runtime.clone());
+    let listeners_container = TcpListenersContainer::new(
+        stream_container.clone(),
+        runtime.clone(),
+        listener_added_tx,
+        listener_removed_tx,
+    );
 
     let repaint_scheduler = Arc::new(RepaintScheduler::default());
 
@@ -74,7 +85,7 @@ fn main() {
         controller: streams_controller.clone(),
     });
     let listeners_view = Box::new(ListenersView {
-        model: listeners_model,
+        model: listeners_model.clone(),
         controller: listeners_controller,
     });
     let add_listeners_view = Box::new(AddListenerView {
@@ -105,8 +116,20 @@ fn main() {
     start_handler_stream_removed(
         runtime.clone(),
         stream_removed_rx,
-        repaint_scheduler,
+        repaint_scheduler.clone(),
         streams_model.clone(),
+    );
+    start_handler_listener_added(
+        runtime.clone(),
+        listener_added_rx,
+        repaint_scheduler.clone(),
+        listeners_model.clone(),
+    );
+    start_handler_listener_removed(
+        runtime.clone(),
+        listener_removed_rx,
+        repaint_scheduler.clone(),
+        listeners_model.clone(),
     );
     run_native("PTYS", options, Box::new(|_context| Box::new(app))).unwrap();
 }

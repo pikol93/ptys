@@ -22,7 +22,7 @@ impl WindowView for ListenersView {
 
         ui.heading("Listeners");
         Grid::new("listeners").show(ui, |ui| {
-            for model in &model.stream_models {
+            for model in &model.listeners_models {
                 ui.label(model.id.to_string());
                 ui.label(model.port.to_string());
                 if ui.button("Stop").clicked() {
