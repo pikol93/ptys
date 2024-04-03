@@ -8,6 +8,8 @@ use tokio::sync::RwLock;
 
 use crate::application::add_listener::controller::AddListenerController;
 use crate::application::add_listener::view::AddListenerView;
+use crate::application::add_stream::controller::AddStreamController;
+use crate::application::add_stream::view::AddStreamView;
 use crate::application::listeners::controller::ListenersController;
 use crate::application::listeners::view::ListenersView;
 use crate::application::repaint_scheduler::RepaintScheduler;
@@ -40,12 +42,13 @@ fn main() {
     let streams_model = Arc::new(RwLock::default());
     let listeners_model = Arc::new(RwLock::default());
     let add_listener_model = Arc::new(RwLock::default());
+    let add_stream_model = Arc::new(RwLock::default());
 
     let streams_controller = Arc::new(StreamsController {
         model: streams_model.clone(),
         runtime: runtime.clone(),
         repaint_scheduler: repaint_scheduler.clone(),
-        stream_container,
+        stream_container: stream_container.clone(),
     });
     let listeners_controller = ListenersController {
         model: listeners_model.clone(),
@@ -58,6 +61,12 @@ fn main() {
         listeners_container: listeners_container.clone(),
         runtime: runtime.clone(),
         repaint_scheduler: repaint_scheduler.clone(),
+    };
+    let add_stream_controller = AddStreamController {
+        model: add_stream_model.clone(),
+        runtime: runtime.clone(),
+        repaint_scheduler: repaint_scheduler.clone(),
+        stream_container: stream_container.clone(),
     };
 
     let streams_view = Box::new(StreamsView {
@@ -72,9 +81,18 @@ fn main() {
         model: add_listener_model,
         controller: add_listeners_controller,
     });
+    let add_stream_view = Box::new(AddStreamView {
+        model: add_stream_model,
+        controller: add_stream_controller,
+    });
 
     let app = App::new(
-        vec![streams_view, listeners_view, add_listeners_view],
+        vec![
+            streams_view,
+            listeners_view,
+            add_listeners_view,
+            add_stream_view,
+        ],
         repaint_scheduler.clone(),
     );
 

@@ -18,7 +18,7 @@ impl WindowView for ListenersView {
     }
 
     fn display(&self, _context: &Context, ui: &mut Ui) {
-        let mut model = self.model.blocking_write();
+        let model = self.model.blocking_read();
 
         ui.heading("Listeners");
         Grid::new("listeners").show(ui, |ui| {

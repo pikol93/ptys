@@ -1,4 +1,5 @@
 pub mod add_listener;
+pub mod add_stream;
 pub mod app;
 pub mod listeners;
 pub mod repaint_scheduler;

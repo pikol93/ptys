@@ -1,10 +1,10 @@
 use std::sync::Arc;
 
-use egui::{Context, Grid, RichText, Ui};
+use egui::{Context, Grid, Ui};
 use tokio::sync::RwLock;
 
 use crate::application::streams::controller::StreamsController;
-use crate::application::streams::model::{AddStreamModel, StreamModel, StreamsModel};
+use crate::application::streams::model::StreamsModel;
 use crate::application::window_view::WindowView;
 
 pub struct StreamsView {
@@ -18,44 +18,10 @@ impl WindowView for StreamsView {
     }
 
     fn display(&self, _context: &Context, ui: &mut Ui) {
-        let mut model = self.model.blocking_write();
+        let model = self.model.blocking_read();
 
-        ui.label(RichText::new("PTYS streams").size(22.0));
-        self.display_add_connection_section(ui, &mut model.add_connection_model);
-        self.display_connection_list(ui, &model.stream_models);
-    }
-}
-
-impl StreamsView {
-    fn display_add_connection_section(&self, ui: &mut Ui, model: &mut AddStreamModel) {
-        ui.heading("Connect");
-        ui.horizontal(|ui| {
-            ui.label("Hostname");
-            if ui.text_edit_singleline(&mut model.hostname).changed() {
-                self.controller.validate_add_connection_fields();
-            }
-        });
-        ui.horizontal(|ui| {
-            ui.label("Port");
-            if ui.text_edit_singleline(&mut model.port).changed() {
-                self.controller.validate_add_connection_fields();
-            }
-        });
-
-        ui.horizontal(|ui| {
-            if ui.button("Add connection").clicked() {
-                self.controller.button_clicked_add_connection();
-            }
-            if let Some(error) = &model.error {
-                ui.label(error);
-            }
-        });
-    }
-
-    fn display_connection_list(&self, ui: &mut Ui, models: &[StreamModel]) {
-        ui.heading("Connections");
         Grid::new("streams").show(ui, |ui| {
-            for model in models {
+            for model in &model.stream_models {
                 ui.label(model.id.to_string());
                 ui.label(
                     model

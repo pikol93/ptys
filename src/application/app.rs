@@ -16,7 +16,7 @@ impl eframe::App for App {
     fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
         self.repaint_scheduler.set_context(ctx);
 
-        CentralPanel::default().show(ctx, |ui| {
+        CentralPanel::default().show(ctx, |_ui| {
             self.views.iter().enumerate().for_each(|(index, view)| {
                 Window::new(view.get_title())
                     .open(self.visibility.get_mut(index).unwrap())
