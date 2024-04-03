@@ -1,3 +1,4 @@
+use anyhow::Error;
 use std::sync::Arc;
 use tokio::net::TcpListener;
 
@@ -21,15 +22,22 @@ impl ListenerEntry {
     }
 }
 
-pub struct TcpListenerContainer {
+impl ListenerEntry {
+    pub fn cancel(&self) {
+        self.token.cancel();
+    }
+}
+
+#[derive(Clone)]
+pub struct TcpListenersContainer {
     pub listeners: Arc<RwLock<Vec<ListenerEntry>>>,
     stream_container: TcpStreamContainer,
     runtime: Arc<Runtime>,
 }
 
-impl TcpListenerContainer {
+impl TcpListenersContainer {
     pub fn new(stream_container: TcpStreamContainer, runtime: Arc<Runtime>) -> Self {
-        TcpListenerContainer {
+        TcpListenersContainer {
             listeners: Arc::new(Default::default()),
             stream_container,
             runtime,
@@ -51,6 +59,16 @@ impl TcpListenerContainer {
         streams.push(entry);
 
         self.start_reading(id, token, listener)
+    }
+
+    pub async fn cancel_listener(&self, id: u32) -> anyhow::Result<()> {
+        let streams = self.listeners.read().await;
+        let Some(entry) = streams.iter().find(|entry| entry.id == id) else {
+            return Err(Error::msg("Could not find an entry by the given ID."));
+        };
+
+        entry.cancel();
+        Ok(())
     }
 
     fn start_reading(&self, id: u32, token: CancellationToken, listener: TcpListener) {
