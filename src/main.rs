@@ -1,10 +1,12 @@
 use std::sync::Arc;
 
-use eframe::{run_native, NativeOptions};
+use eframe::{NativeOptions, run_native};
 use egui::ViewportBuilder;
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc::channel;
 use tokio::sync::RwLock;
+
+use application::app::App;
 
 use crate::application::add_listener::controller::AddListenerController;
 use crate::application::add_listener::view::AddListenerView;
@@ -13,6 +15,8 @@ use crate::application::add_stream::view::AddStreamView;
 use crate::application::application_information::view::ApplicationInformationView;
 use crate::application::listeners::controller::ListenersController;
 use crate::application::listeners::view::ListenersView;
+use crate::application::object_model_edit::controller::ObjectModelEditController;
+use crate::application::object_model_edit::view::ObjectModelEditView;
 use crate::application::repaint_scheduler::RepaintScheduler;
 use crate::application::streams::controller::StreamsController;
 use crate::application::streams::view::StreamsView;
@@ -24,12 +28,12 @@ use crate::listeners_events_handler::{
 use crate::streams_events_handler::{
     start_handler_stream_added, start_handler_stream_data_received, start_handler_stream_removed,
 };
-use application::app::App;
 
 pub mod application;
 pub mod communication;
 mod listeners_events_handler;
-pub mod streams_events_handler;
+mod streams_events_handler;
+pub mod utility;
 
 fn main() {
     let options = NativeOptions {
@@ -62,6 +66,7 @@ fn main() {
     let listeners_model = Arc::new(RwLock::default());
     let add_listener_model = Arc::new(RwLock::default());
     let add_stream_model = Arc::new(RwLock::default());
+    let object_model_edit_model = Arc::new(RwLock::default());
 
     let streams_controller = Arc::new(StreamsController {
         model: streams_model.clone(),
@@ -87,6 +92,10 @@ fn main() {
         repaint_scheduler: repaint_scheduler.clone(),
         stream_container: stream_container.clone(),
     };
+    let object_model_edit_controller = ObjectModelEditController {
+        model: object_model_edit_model.clone(),
+        runtime: runtime.clone(),
+    };
 
     let streams_view = Box::new(StreamsView {
         model: streams_model.clone(),
@@ -105,6 +114,10 @@ fn main() {
         controller: add_stream_controller,
     });
     let application_information_view = Box::new(ApplicationInformationView {});
+    let object_model_edit_view = Box::new(ObjectModelEditView {
+        model: object_model_edit_model.clone(),
+        controller: object_model_edit_controller,
+    });
 
     let app = App::new(
         vec![
@@ -113,6 +126,7 @@ fn main() {
             add_listeners_view,
             add_stream_view,
             application_information_view,
+            object_model_edit_view,
         ],
         repaint_scheduler.clone(),
     );
