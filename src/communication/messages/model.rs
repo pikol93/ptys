@@ -1,42 +1,43 @@
 use std::collections::HashMap;
 
 use num_bigint::BigUint;
+use serde::{Deserialize, Serialize};
 
 use crate::communication::messages::values::{Node, Value};
 use crate::utility::big_uint::big_uint_to_usize;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub enum Endianness {
     Little,
     Big,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Length {
     Constant(usize),
     Variable(String),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DynamicData {
     pub subtype_reference_name: String,
     pub subtypes: HashMap<usize, Box<ObjectModel>>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Data {
     Value(ValueData),
     Parent(Vec<ObjectModel>),
     Dynamic(DynamicData),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ValueData {
     pub length: Length,
     pub endianness: Endianness,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ObjectModel {
     pub name: String,
     pub data: Data,
@@ -168,6 +169,13 @@ mod tests {
         let (key_value, right) = message_information.decode(&buffer, &mut registry);
 
         dbg!(key_value, right);
+    }
+
+    #[test]
+    fn serialize() {
+        let object_model = get_message_field_information();
+        let json = serde_json::to_string(&object_model).unwrap();
+        println!("{}", json);
     }
 
     fn get_message_field_information() -> ObjectModel {
