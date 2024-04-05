@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::communication::messages::model::{
+use crate::communication::message_model::model::{
     Data, DynamicData, Endianness, Length, ObjectModel, ValueData,
 };
 

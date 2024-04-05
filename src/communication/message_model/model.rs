@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use num_bigint::BigUint;
 use serde::{Deserialize, Serialize};
 
-use crate::communication::messages::values::{Node, Value};
+use crate::communication::message_model::values::{Node, Value};
 use crate::utility::big_uint::big_uint_to_usize;
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
