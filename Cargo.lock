@@ -2280,6 +2280,7 @@ dependencies = [
  "eframe",
  "egui",
  "num-bigint",
+ "ptys_packets",
  "serde",
  "serde_json",
  "strum",

@@ -15,3 +15,4 @@ num-bigint = "0.4.4"
 serde = { version = "1.0.197", features = ["derive"] }
 serde_json = "1.0.115"
 bounded-vec-deque = "0.1.1"
+ptys_packets = { path = "../ptys_packets" }
