@@ -2289,6 +2289,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ptys_packets"
+version = "0.1.0"
+dependencies = [
+ "num-bigint",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "quick-xml"
 version = "0.34.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
