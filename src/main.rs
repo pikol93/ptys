@@ -17,6 +17,8 @@ use crate::application::listeners::controller::ListenersController;
 use crate::application::listeners::view::ListenersView;
 use crate::application::object_model_edit::controller::ObjectModelEditController;
 use crate::application::object_model_edit::view::ObjectModelEditView;
+use crate::application::received_messages::controller::ReceivedMessagesController;
+use crate::application::received_messages::view::ReceivedMessagesView;
 use crate::application::repaint_scheduler::RepaintScheduler;
 use crate::application::streams::controller::StreamsController;
 use crate::application::streams::view::StreamsView;
@@ -25,6 +27,7 @@ use crate::communication::streams::tcp_stream_container::TcpStreamContainer;
 use crate::listeners_events_handler::{
     start_handler_listener_added, start_handler_listener_removed,
 };
+use crate::message_storage_events_handler::{start_handler_message_added, start_handler_message_removed};
 use crate::streams_events_handler::{
     start_handler_stream_added, start_handler_stream_data_received, start_handler_stream_removed,
 };
@@ -32,6 +35,7 @@ use crate::streams_events_handler::{
 pub mod application;
 pub mod communication;
 mod listeners_events_handler;
+mod message_storage_events_handler;
 mod streams_events_handler;
 pub mod utility;
 
@@ -47,6 +51,8 @@ fn main() {
     let (stream_data_received_tx, stream_data_received_rx) = channel(16);
     let (stream_added_tx, stream_added_rx) = channel(16);
     let (stream_removed_tx, stream_removed_rx) = channel(16);
+    let (_message_added_tx, message_added_rx) = channel(16);
+    let (_message_removed_tx, message_removed_rx) = channel(16);
     let stream_container = TcpStreamContainer::new(
         runtime.clone(),
         stream_added_tx,
@@ -67,6 +73,7 @@ fn main() {
     let add_listener_model = Arc::new(RwLock::default());
     let add_stream_model = Arc::new(RwLock::default());
     let object_model_edit_model = Arc::new(RwLock::default());
+    let received_messages_model = Arc::new(RwLock::default());
 
     let streams_controller = Arc::new(StreamsController {
         model: streams_model.clone(),
@@ -96,6 +103,7 @@ fn main() {
         model: object_model_edit_model.clone(),
         runtime: runtime.clone(),
     };
+    let received_messages_controller = ReceivedMessagesController {};
 
     let streams_view = Box::new(StreamsView {
         model: streams_model.clone(),
@@ -118,6 +126,10 @@ fn main() {
         model: object_model_edit_model.clone(),
         controller: object_model_edit_controller,
     });
+    let received_messages_view = Box::new(ReceivedMessagesView {
+        controller: received_messages_controller,
+        model: received_messages_model.clone(),
+    });
 
     let app = App::new(
         vec![
@@ -127,6 +139,7 @@ fn main() {
             add_stream_view,
             application_information_view,
             object_model_edit_view,
+            received_messages_view,
         ],
         repaint_scheduler.clone(),
     );
@@ -160,6 +173,18 @@ fn main() {
         listener_removed_rx,
         repaint_scheduler.clone(),
         listeners_model.clone(),
+    );
+    start_handler_message_added(
+        runtime.clone(),
+        message_added_rx,
+        repaint_scheduler.clone(),
+        received_messages_model.clone(),
+    );
+    start_handler_message_removed(
+        runtime.clone(),
+        message_removed_rx,
+        repaint_scheduler.clone(),
+        received_messages_model.clone(),
     );
     run_native("PTYS", options, Box::new(|_context| Box::new(app))).unwrap();
 }

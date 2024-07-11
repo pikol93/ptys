@@ -7,3 +7,4 @@ pub mod object_model_edit;
 pub mod repaint_scheduler;
 pub mod streams;
 mod window_view;
+pub mod received_messages;
