@@ -1,7 +1,3 @@
-pub struct ReceivedMessagesController {
-    
-}
+pub struct ReceivedMessagesController {}
 
-impl ReceivedMessagesController {
-    
-}
+impl ReceivedMessagesController {}

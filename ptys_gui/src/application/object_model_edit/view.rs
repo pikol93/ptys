@@ -2,12 +2,12 @@ use std::sync::Arc;
 
 use eframe::Frame;
 use egui::{CollapsingHeader, Context, Ui};
+use ptys_packets::model::{Data, DynamicData, ObjectModel, ValueData};
 use tokio::sync::RwLock;
 
 use crate::application::object_model_edit::controller::ObjectModelEditController;
 use crate::application::object_model_edit::model::ObjectModelEditModel;
 use crate::application::window_view::WindowView;
-use crate::communication::message_model::model::{Data, DynamicData, ObjectModel, ValueData};
 
 pub struct ObjectModelEditView {
     pub model: Arc<RwLock<ObjectModelEditModel>>,

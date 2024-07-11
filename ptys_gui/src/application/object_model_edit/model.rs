@@ -1,8 +1,6 @@
 use std::collections::HashMap;
 
-use crate::communication::message_model::model::{
-    Data, DynamicData, Endianness, Length, ObjectModel, ValueData,
-};
+use ptys_packets::model::{Data, DynamicData, Endianness, Length, ObjectModel, ValueData};
 
 pub struct ObjectModelEditModel {
     pub edited_model: Option<ObjectModel>,

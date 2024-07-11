@@ -45,7 +45,10 @@ pub fn start_handler_message_removed(
             };
 
             let messages = &mut model.write().await.messages;
-            let Some(index) = messages.iter().position(|message_model| message_model.id == message.id) else {
+            let Some(index) = messages
+                .iter()
+                .position(|message_model| message_model.id == message.id)
+            else {
                 println!("Could not find a message model by ID {}", message.id);
                 continue;
             };

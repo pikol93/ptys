@@ -8,5 +8,5 @@ pub struct MessageModel {
 
 #[derive(Default)]
 pub struct ReceivedMessagesModel {
-    pub messages: VecDeque<MessageModel>
+    pub messages: VecDeque<MessageModel>,
 }

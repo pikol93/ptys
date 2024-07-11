@@ -27,7 +27,9 @@ use crate::communication::streams::tcp_stream_container::TcpStreamContainer;
 use crate::listeners_events_handler::{
     start_handler_listener_added, start_handler_listener_removed,
 };
-use crate::message_storage_events_handler::{start_handler_message_added, start_handler_message_removed};
+use crate::message_storage_events_handler::{
+    start_handler_message_added, start_handler_message_removed,
+};
 use crate::streams_events_handler::{
     start_handler_stream_added, start_handler_stream_data_received, start_handler_stream_removed,
 };
@@ -37,7 +39,6 @@ pub mod communication;
 mod listeners_events_handler;
 mod message_storage_events_handler;
 mod streams_events_handler;
-pub mod utility;
 
 fn main() {
     let options = NativeOptions {

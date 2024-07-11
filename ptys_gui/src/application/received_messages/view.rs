@@ -19,8 +19,9 @@ impl WindowView for ReceivedMessagesView {
     fn display(&self, _context: &Context, _frame: &mut Frame, _ui: &mut Ui) {
         let model = self.model.blocking_read();
 
-        model.messages.iter().for_each(|message| {
-            todo!("{:?}", message)
-        });
+        model
+            .messages
+            .iter()
+            .for_each(|message| todo!("{:?}", message));
     }
 }
