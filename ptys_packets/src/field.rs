@@ -1,13 +1,15 @@
 use color_eyre::{eyre::eyre, Result};
-use num_bigint::{BigInt, Sign};
+use num_bigint::BigUint;
+use serde::{Deserialize, Serialize};
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Field {
     pub starting_bit: usize,
     pub bits: usize,
 }
 
 impl Field {
-    pub fn decode(&self, buffer: &[u8]) -> Result<BigInt> {
+    pub fn decode(&self, buffer: &[u8]) -> Result<BigUint> {
         let end_bit = self.starting_bit + self.bits - 1;
         let end_byte = end_bit / u8::BITS as usize;
         if end_byte >= buffer.len() {
@@ -16,12 +18,12 @@ impl Field {
 
         let starting_byte = self.starting_bit / u8::BITS as usize;
         let buffer = &buffer[starting_byte..(end_byte + 1)];
-        let big_int = BigInt::from_bytes_be(Sign::Plus, buffer);
+        let big_uint = BigUint::from_bytes_be(buffer);
         let end_bit_index = end_bit % u8::BITS as usize;
         let shift_amount = u8::BITS as usize - (end_bit_index + 1);
-        let big_int = big_int >> shift_amount;
+        let big_uint = big_uint >> shift_amount;
 
-        Ok(big_int)
+        Ok(big_uint)
     }
 }
 
@@ -38,7 +40,7 @@ mod tests {
 
         let buffer = [0b10000000];
         let value = field.decode(&buffer).unwrap();
-        assert_eq!(value, BigInt::from(1));
+        assert_eq!(value, BigUint::from(1u32));
     }
 
     #[test]
@@ -50,7 +52,7 @@ mod tests {
 
         let buffer = [0b11100000];
         let value = field.decode(&buffer).unwrap();
-        assert_eq!(value, BigInt::from(7));
+        assert_eq!(value, BigUint::from(7u32));
     }
 
     #[test]
@@ -62,7 +64,7 @@ mod tests {
 
         let buffer = [0b01110000];
         let value = field.decode(&buffer).unwrap();
-        assert_eq!(value, BigInt::from(7));
+        assert_eq!(value, BigUint::from(7u32));
     }
 
     #[test]
@@ -74,7 +76,7 @@ mod tests {
 
         let buffer = [0b00000011, 0b10000000];
         let value = field.decode(&buffer).unwrap();
-        assert_eq!(value, BigInt::from(7));
+        assert_eq!(value, BigUint::from(7u32));
     }
 
     #[test]
@@ -86,7 +88,7 @@ mod tests {
 
         let buffer = [0b0000_0001, 0b1111_1111, 0b1000_0000];
         let value = field.decode(&buffer).unwrap();
-        assert_eq!(value, BigInt::from(1023));
+        assert_eq!(value, BigUint::from(1023u32));
     }
 
     #[test]
