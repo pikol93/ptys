@@ -1,5 +1,5 @@
 [workspace]
-members = [
+members = [ "ptys-network",
     "ptys_gui", "ptys_packets",
 ]
 resolver = "2"
