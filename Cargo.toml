@@ -3,3 +3,10 @@ members = [ "ptys-network",
     "ptys_gui", "ptys_packets",
 ]
 resolver = "2"
+
+[workspace.dependencies]
+async-trait = "0.1.83"
+eyre = "0.6.12"
+iced = { version = "0.13.1", features = ["tokio"] }
+tokio = "1.42.0"
+tokio-util = "0.7.13"
