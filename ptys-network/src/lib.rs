@@ -32,7 +32,7 @@ impl Network {
         }
     }
 
-    pub async fn add_listener(&self, port: u16) {
+    pub async fn add_listener(&self, port: u16) -> usize {
         let id = self
             .inner
             .listener_id_counter
@@ -40,6 +40,8 @@ impl Network {
         let runtime = self.inner.runtime.clone();
         let mut listeners = self.inner.listeners.write().await;
         listeners.push(Listener::new(id, port, runtime));
+
+        id
     }
 
     pub async fn start_listener(&self, id: usize) -> Result<()> {

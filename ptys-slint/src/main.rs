@@ -29,9 +29,8 @@ fn init_add_listener_handler(ui: &Ui, runtime: Arc<Runtime>, network: Arc<Networ
             runtime.spawn(async move {
                 let result = add_listener(network, &value)
                     .await
-                    .err()
-                    .map(|error| format!("{}", error))
-                    .unwrap_or("OK".to_string());
+                    .map(|id| format!("Added listener with ID {}", id))
+                    .unwrap_or_else(|error| format!("{}", error));
 
                 ui_weak
                     .upgrade_in_event_loop(|ui| {
@@ -43,9 +42,9 @@ fn init_add_listener_handler(ui: &Ui, runtime: Arc<Runtime>, network: Arc<Networ
         });
 }
 
-async fn add_listener(network: Arc<Network>, port_string: &str) -> Result<()> {
+async fn add_listener(network: Arc<Network>, port_string: &str) -> Result<usize> {
     let port = port_string.parse::<u16>()?;
-    network.add_listener(port).await;
+    let id = network.add_listener(port).await;
 
-    Ok(())
+    Ok(id)
 }
