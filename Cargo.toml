@@ -1,7 +1,8 @@
 [workspace]
-members = [ 
-    "ptys-iced", 
-    "ptys-network",
+members = [
+    "ptys-network", 
+    "ptys-slint", 
+    "ptys-slint-components",
 ]
 resolver = "2"
 
@@ -11,3 +12,5 @@ eyre = "0.6.12"
 iced = "0.13.1"
 tokio = "1.42.0"
 tokio-util = "0.7.13"
+slint = "1.9.1"
+slint-build = "1.9.1"
