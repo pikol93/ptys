@@ -1,6 +1,9 @@
 [workspace]
 members = [
-    "crates/ptys-network",
+    "crates/ptys_network",
+]
+exclude = [
+    "crates/ptys_app_ffi",
 ]
 resolver = "2"
 

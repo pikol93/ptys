@@ -9,7 +9,7 @@ set(PROJECT_NAME "rust_lib_ptys_app")
 project(${PROJECT_NAME} LANGUAGES CXX)
 
 include("../cargokit/cmake/cargokit.cmake")
-apply_cargokit(${PROJECT_NAME} ../../../../../../rust rust_lib_ptys_app "")
+apply_cargokit(${PROJECT_NAME} ../../../../../../../crates/ptys_app_ffi rust_lib_ptys_app "")
 
 # List of absolute paths to libraries that should be bundled with the plugin.
 # This list could contain prebuilt libraries, or libraries created by an
