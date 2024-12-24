@@ -1,8 +1,8 @@
 [workspace]
 members = [
-    "ptys-network", 
-    "ptys-slint", 
-    "ptys-slint-components",
+    "crates/ptys-network", 
+    "crates/ptys-slint", 
+    "crates/ptys-slint-components",
 ]
 resolver = "2"
 
