@@ -4,8 +4,14 @@ use std::sync::{
 };
 
 use eyre::{OptionExt, Result};
-use listener::Listener;
-use tokio::{runtime::Runtime, sync::RwLock};
+use listener::{Listener, ListenerState};
+use tokio::{
+    runtime::Runtime,
+    sync::{
+        broadcast::{channel, Receiver, Sender},
+        RwLock,
+    },
+};
 
 pub mod listener;
 pub mod remote_stream;
@@ -19,6 +25,7 @@ pub struct Inner {
     runtime: Arc<Runtime>,
     listener_id_counter: AtomicUsize,
     listeners: RwLock<Vec<Listener>>,
+    listener_added_sender: Sender<usize>,
 }
 
 impl Network {
@@ -28,6 +35,7 @@ impl Network {
                 runtime,
                 listener_id_counter: Default::default(),
                 listeners: Default::default(),
+                listener_added_sender: channel(1).0,
             },
         }
     }
@@ -55,5 +63,19 @@ impl Network {
         listener.start().await?;
 
         Ok(())
+    }
+
+    pub fn get_listener_added_receiver(&self) -> Receiver<usize> {
+        self.inner.listener_added_sender.subscribe()
+    }
+
+    pub fn get_listener_state(&self, id: usize) -> Option<ListenerState> {
+        self.inner
+            .listeners
+            .blocking_read()
+            .iter()
+            .filter(|listener| listener.id == id)
+            .next()
+            .map(|listener| listener.get_state())
     }
 }

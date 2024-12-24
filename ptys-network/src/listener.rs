@@ -7,6 +7,11 @@ use tokio::sync::RwLock;
 use tokio::{net::TcpListener, runtime::Runtime};
 use tokio_util::sync::CancellationToken;
 
+pub enum ListenerState {
+    Disabled,
+    Listening,
+}
+
 #[derive(Clone)]
 pub struct Listener {
     pub id: usize,
@@ -62,6 +67,14 @@ impl Listener {
 
         cancellation_token.cancel();
         Ok(())
+    }
+
+    pub fn get_state(&self) -> ListenerState {
+        if self.inner.cancellation_token.blocking_read().is_some() {
+            ListenerState::Listening
+        } else {
+            ListenerState::Disabled
+        }
     }
 }
 

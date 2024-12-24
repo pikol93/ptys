@@ -1,0 +1,12 @@
+export enum ListenerState {
+    disabled, listening,
+}
+
+export struct ListenerEntry {
+    id: int,
+    state: string,
+}
+
+export global ListenerListState {
+    in property <[ListenerEntry]> entries;
+}

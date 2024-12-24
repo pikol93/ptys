@@ -1,12 +1,15 @@
 import { VerticalBox } from "std-widgets.slint";
 import { AddListener } from "AddListener.slint";
+import { ListenerList } from "ListenerList.slint";
 
 export { AddListenerState } from "AddListenerState.slint";
+export { ListenerListState } from "ListenerListState.slint";
 
 export component Ui inherits Window {
-    VerticalLayout {
+     VerticalLayout {
         alignment: start;
         
-        AddListener {}
+        add-listener := AddListener {}
+        listener-list := ListenerList {}
     }
 }
