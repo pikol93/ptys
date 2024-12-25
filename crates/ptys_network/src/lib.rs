@@ -49,6 +49,8 @@ impl Network {
         let mut listeners = self.inner.listeners.write().await;
         listeners.push(Listener::new(id, port, runtime));
 
+        let _ = self.inner.listener_added_sender.send(id);
+
         id
     }
 
