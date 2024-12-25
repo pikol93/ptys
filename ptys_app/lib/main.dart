@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ptys_app/src/rust/api/simple.dart';
 import 'package:ptys_app/src/rust/frb_generated.dart';
 
 Future<void> main() async {
@@ -16,8 +15,7 @@ class MyApp extends StatelessWidget {
       home: Scaffold(
         appBar: AppBar(title: const Text('flutter_rust_bridge quickstart')),
         body: Center(
-          child: Text(
-              'Action: Call Rust `greet("Tom")`\nResult: `${greet(name: "Tom")}`'),
+          child: Text("my text displayed here"),
         ),
       ),
     );
