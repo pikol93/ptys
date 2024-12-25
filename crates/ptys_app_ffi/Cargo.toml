@@ -7,6 +7,10 @@ edition = "2021"
 crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
-ptys_network = { path = "../ptys_network" }
+ptys_service = { path = "../ptys_service" }
 tokio = { workspace = true }
 flutter_rust_bridge = "=2.7.0"
+
+[build-dependencies]
+anyhow = "1.0.95"
+flutter_rust_bridge_codegen = "=2.7.0"

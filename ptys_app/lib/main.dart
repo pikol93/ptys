@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ptys_app/src/rust/api/network.dart';
 import 'package:ptys_app/src/rust/frb_generated.dart';
 
 Future<void> main() async {
@@ -15,9 +16,28 @@ class MyApp extends StatelessWidget {
       home: Scaffold(
         appBar: AppBar(title: const Text('flutter_rust_bridge quickstart')),
         body: Center(
-          child: Text("my text displayed here"),
+          child: Column(
+            children: [
+              ElevatedButton(
+                onPressed: _onAddListenerPressed,
+                child: const Text("Add listener"),
+              ),
+              ElevatedButton(
+                onPressed: _onStartListenerPressed,
+                child: const Text("Start listener"),
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  Future<void> _onAddListenerPressed() async {
+    await addListener(port: 1234);
+  }
+
+  Future<void> _onStartListenerPressed() async {
+    await startListener(id: 0);
   }
 }

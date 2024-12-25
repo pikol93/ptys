@@ -1,11 +1,6 @@
-use std::sync::Arc;
+use ptys_service::network_ext::NetworkExt;
 
-use ptys_network::Network;
-use tokio::runtime::Runtime;
-
-pub struct Program {
-    network: Network,
-}
+use crate::service::get_service;
 
 #[flutter_rust_bridge::frb(init)]
 pub fn init_app() {
@@ -13,11 +8,13 @@ pub fn init_app() {
     flutter_rust_bridge::setup_default_user_utils();
 }
 
-#[flutter_rust_bridge::frb(sync)]
-pub fn initialize_program() -> Arc<Program> {
-    let runtime = Arc::new(Runtime::new().unwrap());
+pub async fn add_listener(port: u16) -> i64 {
+    get_service().add_listener(port).await as i64
+}
 
-    Arc::new(Program {
-        network: Network::new(runtime),
-    })
+pub async fn start_listener(id: i64) -> Result<(), String> {
+    get_service()
+        .start_listener(id as usize)
+        .await
+        .map_err(|err| format!("{}", err))
 }

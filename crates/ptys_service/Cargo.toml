@@ -1,0 +1,10 @@
+[package]
+name = "ptys_service"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ptys_network = { path = "../ptys_network" }
+async-trait = { workspace = true }
+eyre = { workspace = true }
+tokio = { workspace = true }

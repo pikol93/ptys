@@ -2,6 +2,7 @@
 members = [
     "crates/ptys_network",
     "crates/ptys_app_ffi",
+    "crates/ptys_service",
 ]
 resolver = "2"
 
