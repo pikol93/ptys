@@ -9,9 +9,9 @@ pub trait NetworkExt {
 
     async fn start_listener(&self, id: usize) -> Result<()>;
 
-    async fn subscribe_listener_added<T>(&self, callback: T)
+    fn subscribe_listener_added<T>(&self, callback: T)
     where
-        T: Fn(usize) -> usize + Send + 'static;
+        T: Fn(usize) + Send + Sync + 'static;
 }
 
 #[async_trait]
@@ -24,9 +24,9 @@ impl NetworkExt for Service {
         self.network.start_listener(id).await
     }
 
-    async fn subscribe_listener_added<T>(&self, callback: T)
+    fn subscribe_listener_added<T>(&self, callback: T)
     where
-        T: Fn(usize) -> usize + Send + 'static,
+        T: Fn(usize) + Send + Sync + 'static,
     {
         let network = self.network.clone();
         self.runtime.spawn(async move {
