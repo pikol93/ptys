@@ -101,3 +101,21 @@ pub async fn start_listener(id: i64) -> Result<(), String> {
         .await
         .map_err(|err| format!("{}", err))
 }
+
+pub async fn stop_listener(id: i64) -> Result<(), String> {
+    let id = id as usize;
+    get_service()
+        .network
+        .iter_listeners(|listeners| {
+            listeners
+                .iter()
+                .filter(|listener| listener.id == id)
+                .next()
+                .map(Clone::clone)
+        })
+        .await
+        .ok_or("Could not find listener.")?
+        .stop()
+        .await
+        .map_err(|err| format!("{}", err))
+}

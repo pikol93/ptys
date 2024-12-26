@@ -37,12 +37,11 @@ class ListenersService with Logger {
   }
 
   Future<void> startListener(int id) async {
-    logger.warning("TODO");
     await ffi.startListener(id: id);
   }
 
   Future<void> stopListener(int id) async {
-    logger.warning("TODO");
+    await ffi.stopListener(id: id);
   }
 
   Future<void> _onListenersListChanged(int a) async {
