@@ -3,8 +3,7 @@ use std::sync::{
     Arc,
 };
 
-use eyre::{OptionExt, Result};
-use listener::{Listener, ListenerState};
+use listener::Listener;
 use tokio::{
     runtime::Runtime,
     sync::{
@@ -54,30 +53,12 @@ impl Network {
         id
     }
 
-    pub async fn start_listener(&self, id: usize) -> Result<()> {
+    pub async fn iter_listeners<T>(&self, func: impl FnOnce(&[Listener]) -> T) -> T {
         let listeners = self.inner.listeners.read().await;
-        let listener = listeners
-            .iter()
-            .filter(|listener| listener.id == id)
-            .next()
-            .ok_or_eyre("No listener found")?;
-
-        listener.start().await?;
-
-        Ok(())
+        func(&listeners)
     }
 
     pub fn get_listener_added_receiver(&self) -> Receiver<usize> {
         self.inner.listener_added_sender.subscribe()
-    }
-
-    pub fn get_listener_state(&self, id: usize) -> Option<ListenerState> {
-        self.inner
-            .listeners
-            .blocking_read()
-            .iter()
-            .filter(|listener| listener.id == id)
-            .next()
-            .map(|listener| listener.get_state())
     }
 }

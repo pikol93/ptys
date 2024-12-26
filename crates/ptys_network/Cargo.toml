@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 async-trait = { workspace = true }
+atomic_enum = { workspace = true }
 eyre = { workspace = true }
 tokio = { workspace = true, features = ["io-util", "macros", "net", "sync", "rt"] }
 tokio-util = { workspace = true }

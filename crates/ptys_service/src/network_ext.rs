@@ -1,14 +1,9 @@
 use async_trait::async_trait;
-use eyre::Result;
 
 use crate::service::Service;
 
 #[async_trait]
 pub trait NetworkExt {
-    async fn add_listener(&self, port: u16) -> usize;
-
-    async fn start_listener(&self, id: usize) -> Result<()>;
-
     fn subscribe_listener_added<T>(&self, callback: T)
     where
         T: Fn(usize) + Send + Sync + 'static;
@@ -16,14 +11,6 @@ pub trait NetworkExt {
 
 #[async_trait]
 impl NetworkExt for Service {
-    async fn add_listener(&self, port: u16) -> usize {
-        self.network.add_listener(port).await
-    }
-
-    async fn start_listener(&self, id: usize) -> Result<()> {
-        self.network.start_listener(id).await
-    }
-
     fn subscribe_listener_added<T>(&self, callback: T)
     where
         T: Fn(usize) + Send + Sync + 'static,

@@ -6,7 +6,7 @@ use tokio::runtime::Runtime;
 #[derive(Clone)]
 pub struct Service {
     pub(crate) runtime: Arc<Runtime>,
-    pub(crate) network: Arc<Network>,
+    pub network: Arc<Network>,
 }
 
 impl Service {

@@ -8,6 +8,8 @@ crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
 ptys_service = { path = "../ptys_service" }
+ptys_network = { path = "../ptys_network" }
+eyre = { workspace = true }
 tokio = { workspace = true }
 flutter_rust_bridge = "=2.7.0"
 

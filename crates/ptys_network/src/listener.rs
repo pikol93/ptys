@@ -1,5 +1,7 @@
+use std::sync::atomic::Ordering;
 use std::sync::Arc;
 
+use atomic_enum::atomic_enum;
 use eyre::{eyre, Result};
 use tokio::io::AsyncWriteExt;
 use tokio::select;
@@ -7,6 +9,7 @@ use tokio::sync::RwLock;
 use tokio::{net::TcpListener, runtime::Runtime};
 use tokio_util::sync::CancellationToken;
 
+#[atomic_enum]
 pub enum ListenerState {
     Disabled,
     Listening,
@@ -20,8 +23,8 @@ pub struct Listener {
     inner: Arc<Inner>,
 }
 
-#[derive(Default)]
 struct Inner {
+    state: AtomicListenerState,
     cancellation_token: RwLock<Option<CancellationToken>>,
 }
 
@@ -31,7 +34,10 @@ impl Listener {
             id,
             port,
             runtime,
-            inner: Arc::default(),
+            inner: Arc::new(Inner {
+                state: AtomicListenerState::new(ListenerState::Disabled),
+                cancellation_token: RwLock::default(),
+            }),
         }
     }
 
@@ -50,10 +56,18 @@ impl Listener {
 
         let listener = TcpListener::bind(("0.0.0.0", self.port)).await?;
         self.runtime.spawn(async move {
+            inner
+                .state
+                .store(ListenerState::Listening, Ordering::Relaxed);
+
             run_listener(listener, child_cancellation_token).await;
 
             let mut cancellation_token = inner.cancellation_token.write().await;
             *cancellation_token = None;
+
+            inner
+                .state
+                .store(ListenerState::Disabled, Ordering::Relaxed);
         });
 
         Ok(())
@@ -70,11 +84,7 @@ impl Listener {
     }
 
     pub fn get_state(&self) -> ListenerState {
-        if self.inner.cancellation_token.blocking_read().is_some() {
-            ListenerState::Listening
-        } else {
-            ListenerState::Disabled
-        }
+        self.inner.state.load(Ordering::Relaxed)
     }
 }
 
