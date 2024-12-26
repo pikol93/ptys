@@ -36,6 +36,14 @@ pub async fn add_listener(port: u16) -> i64 {
     get_service().network.add_listener(port).await as i64
 }
 
+pub async fn remove_listener(id: i64) -> Result<(), String> {
+    get_service()
+        .network
+        .remove_listener(id as usize)
+        .await
+        .map_err(|err| format!("{}", err))
+}
+
 pub async fn subscribe_listener_added(
     dart_callback: impl Fn(i64) -> DartFnFuture<()> + Send + Sync + 'static,
 ) {
@@ -46,6 +54,18 @@ pub async fn subscribe_listener_added(
     };
 
     get_service().subscribe_listener_added(callback)
+}
+
+pub async fn subscribe_listener_removed(
+    dart_callback: impl Fn(i64) -> DartFnFuture<()> + Send + Sync + 'static,
+) {
+    let arc_callback = Arc::new(dart_callback);
+    let callback = move |value| {
+        let dart_callback = arc_callback.clone();
+        get_runtime().spawn(async move { dart_callback(value as i64).await });
+    };
+
+    get_service().subscribe_listener_removed(callback)
 }
 
 pub async fn get_listeners() -> Vec<Listener> {

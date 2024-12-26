@@ -22,7 +22,8 @@ class ListenersService with Logger {
 
   Future<void> initialize() async {
     logger.debug("Initializing listeners service");
-    ffi.subscribeListenerAdded(dartCallback: _onListenerAdded);
+    ffi.subscribeListenerAdded(dartCallback: _onListenersListChanged);
+    ffi.subscribeListenerRemoved(dartCallback: _onListenersListChanged);
   }
 
   Future<void> addListener(int port) async {
@@ -31,7 +32,8 @@ class ListenersService with Logger {
   }
 
   Future<void> removeListener(int id) async {
-    logger.warning("TODO");
+    await ffi.removeListener(id: id);
+    logger.debug("Removed listener with ID $id");
   }
 
   Future<void> startListener(int id) async {
@@ -43,8 +45,7 @@ class ListenersService with Logger {
     logger.warning("TODO");
   }
 
-  Future<void> _onListenerAdded(int a) async {
-    logger.debug("Listeners: $listeners");
+  Future<void> _onListenersListChanged(int a) async {
     ref.invalidate(listenersProvider);
   }
 }

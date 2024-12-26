@@ -7,7 +7,7 @@ use tokio::io::AsyncWriteExt;
 use tokio::select;
 use tokio::sync::RwLock;
 use tokio::{net::TcpListener, runtime::Runtime};
-use tokio_util::sync::CancellationToken;
+use tokio_util::sync::{CancellationToken, DropGuard};
 
 #[atomic_enum]
 pub enum ListenerState {
@@ -25,7 +25,7 @@ pub struct Listener {
 
 struct Inner {
     state: AtomicListenerState,
-    cancellation_token: RwLock<Option<CancellationToken>>,
+    cancellation_token: RwLock<Option<DropGuard>>,
 }
 
 impl Listener {
@@ -42,26 +42,31 @@ impl Listener {
     }
 
     pub async fn start(&self) -> Result<()> {
-        let inner = self.inner.clone();
-        let mut cancellation_token = inner.cancellation_token.write().await;
+        let inner = Arc::<Inner>::downgrade(&self.inner);
+        let mut cancellation_token = self.inner.cancellation_token.write().await;
         if cancellation_token.is_some() {
             return Err(eyre!("Listener already started."));
         }
 
         let new_cancellation_token = CancellationToken::new();
         let child_cancellation_token = new_cancellation_token.child_token();
-        *cancellation_token = Some(new_cancellation_token);
+        *cancellation_token = Some(new_cancellation_token.drop_guard());
 
         drop(cancellation_token);
 
         let listener = TcpListener::bind(("0.0.0.0", self.port)).await?;
-        self.runtime.spawn(async move {
-            inner
-                .state
-                .store(ListenerState::Listening, Ordering::Relaxed);
 
+        self.inner
+            .state
+            .store(ListenerState::Listening, Ordering::Relaxed);
+
+        self.runtime.spawn(async move {
             run_listener(listener, child_cancellation_token).await;
 
+            let Some(inner) = inner.upgrade() else {
+                println!("Inner dropped.");
+                return;
+            };
             let mut cancellation_token = inner.cancellation_token.write().await;
             *cancellation_token = None;
 
@@ -74,12 +79,12 @@ impl Listener {
     }
 
     pub async fn stop(&self) -> Result<()> {
-        let cancellation_token = self.inner.cancellation_token.read().await;
-        let Some(cancellation_token) = cancellation_token.as_ref() else {
+        let mut cancellation_token = self.inner.cancellation_token.write().await;
+        if cancellation_token.is_none() {
             return Err(eyre!("Listener already cancelled."));
-        };
+        }
 
-        cancellation_token.cancel();
+        *cancellation_token = None;
         Ok(())
     }
 

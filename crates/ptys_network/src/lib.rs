@@ -3,6 +3,7 @@ use std::sync::{
     Arc,
 };
 
+use eyre::{OptionExt, Result};
 use listener::Listener;
 use tokio::{
     runtime::Runtime,
@@ -25,6 +26,7 @@ pub struct Inner {
     listener_id_counter: AtomicUsize,
     listeners: RwLock<Vec<Listener>>,
     listener_added_sender: Sender<usize>,
+    listener_removed_sender: Sender<usize>,
 }
 
 impl Network {
@@ -35,6 +37,7 @@ impl Network {
                 listener_id_counter: Default::default(),
                 listeners: Default::default(),
                 listener_added_sender: channel(1).0,
+                listener_removed_sender: channel(1).0,
             },
         }
     }
@@ -53,6 +56,22 @@ impl Network {
         id
     }
 
+    pub async fn remove_listener(&self, id: usize) -> Result<()> {
+        let mut listeners = self.inner.listeners.write().await;
+        let index = listeners
+            .iter()
+            .enumerate()
+            .filter(|(_, listener)| listener.id == id)
+            .next()
+            .map(|(index, _)| index)
+            .ok_or_eyre("Listener not found.")?;
+        listeners.remove(index);
+
+        let _ = self.inner.listener_removed_sender.send(id);
+
+        Ok(())
+    }
+
     pub async fn iter_listeners<T>(&self, func: impl FnOnce(&[Listener]) -> T) -> T {
         let listeners = self.inner.listeners.read().await;
         func(&listeners)
@@ -60,5 +79,9 @@ impl Network {
 
     pub fn subscribe_listener_added(&self) -> Receiver<usize> {
         self.inner.listener_added_sender.subscribe()
+    }
+
+    pub fn subscribe_listener_removed(&self) -> Receiver<usize> {
+        self.inner.listener_removed_sender.subscribe()
     }
 }
