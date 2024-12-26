@@ -17,7 +17,7 @@ impl NetworkExt for Service {
     {
         let network = self.network.clone();
         self.runtime.spawn(async move {
-            let mut rx = network.get_listener_added_receiver();
+            let mut rx = network.subscribe_listener_added();
             loop {
                 let Ok(id) = rx.recv().await else {
                     println!("\"Listener added\" receiver stopped working.");

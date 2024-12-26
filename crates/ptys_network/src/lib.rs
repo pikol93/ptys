@@ -58,7 +58,7 @@ impl Network {
         func(&listeners)
     }
 
-    pub fn get_listener_added_receiver(&self) -> Receiver<usize> {
+    pub fn subscribe_listener_added(&self) -> Receiver<usize> {
         self.inner.listener_added_sender.subscribe()
     }
 }
