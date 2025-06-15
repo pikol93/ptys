@@ -71,15 +71,14 @@ class _AddListenerFormState extends ConsumerState<AddListenerForm> with Logger {
     return null;
   }
 
-  void _onSubmitPressed() {
+  Future<void> _onSubmitPressed() async {
     if (!_formKey.currentState!.validate()) {
       logger.debug("Form not validated.");
       return;
     }
 
     final port = int.parse(_portController.text);
-    ref.read(listenersServiceProvider).addListener(port);
-
+    ref.read(listenersServiceProvider).addListener(port).run();
     _portController.clear();
   }
 }
@@ -122,16 +121,16 @@ class ListenersList extends ConsumerWidget with Logger {
 
   Future<void> _onStartPressed(WidgetRef ref, int id) async {
     logger.debug("Start pressed for listener $id");
-    ref.read(listenersServiceProvider).startListener(id);
+    ref.read(listenersServiceProvider).startListener(id).run();
   }
 
   Future<void> _onStopPressed(WidgetRef ref, int id) async {
     logger.debug("Stop pressed for listener $id");
-    ref.read(listenersServiceProvider).stopListener(id);
+    ref.read(listenersServiceProvider).stopListener(id).run();
   }
 
   Future<void> _onRemovePressed(WidgetRef ref, int id) async {
     logger.debug("Remove pressed for listener $id");
-    ref.read(listenersServiceProvider).removeListener(id);
+    ref.read(listenersServiceProvider).removeListener(id).run();
   }
 }

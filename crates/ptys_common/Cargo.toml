@@ -1,12 +1,8 @@
 [package]
-name = "ptys_network"
+name = "ptys_common"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-ptys_common = { path = "../ptys_common" }
-async-trait = { workspace = true }
-eyre = { workspace = true }
 tokio = { workspace = true, features = ["io-util", "macros", "net", "sync", "rt"] }
-tokio-util = { workspace = true }
 log = { workspace = true }

@@ -146,17 +146,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c59bdb34bc650a32731b31bd8f0829cc15d24a708ee31559e0bb34f2bc320cba"
 
 [[package]]
-name = "atomic_enum"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "99e1aca718ea7b89985790c94aad72d77533063fe00bc497bb79a7c2dae6a661"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.87",
-]
-
-[[package]]
 name = "autocfg"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1065,9 +1054,9 @@ dependencies = [
 
 [[package]]
 name = "log"
-version = "0.4.22"
+version = "0.4.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a7a70ba024b9dc04c27ea2f0c0548feb474ec5c54bba33a7f72f873a39d07b24"
+checksum = "13dc2df351e3202783a1fe0d44375f7295ffb4049267b0f3018346dc122a1d94"
 
 [[package]]
 name = "md-5"
@@ -1261,12 +1250,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "ptys_common"
+version = "0.1.0"
+dependencies = [
+ "log",
+ "tokio",
+]
+
+[[package]]
 name = "ptys_network"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "atomic_enum",
  "eyre",
+ "log",
+ "ptys_common",
  "tokio",
  "tokio-util",
 ]
@@ -1277,6 +1275,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "eyre",
+ "ptys_common",
  "ptys_network",
  "tokio",
 ]
@@ -1336,6 +1335,7 @@ dependencies = [
  "eyre",
  "flutter_rust_bridge",
  "flutter_rust_bridge_codegen",
+ "ptys_common",
  "ptys_network",
  "ptys_service",
  "tokio",

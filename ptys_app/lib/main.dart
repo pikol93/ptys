@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loggy/loggy.dart';
 import 'package:ptys_app/src/gui/listeners_section.dart';
+import 'package:ptys_app/src/logger.dart';
 import 'package:ptys_app/src/rust/frb_generated.dart';
 import 'package:ptys_app/src/service/listeners_service.dart';
 
 Future<void> main() async {
   await RustLib.init();
+  Loggy.initLoggy(logPrinter: const LoggerPrinter());
+
   runApp(
     const ProviderScope(
       child: InitializationNode(
@@ -29,7 +33,7 @@ class _InitializationNodeState extends ConsumerState<InitializationNode> {
   @override
   void initState() {
     super.initState();
-    ref.read(listenersServiceProvider).initialize();
+    ref.read(listenersServiceProvider).initialize().run();
   }
 
   @override

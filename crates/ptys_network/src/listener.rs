@@ -1,15 +1,14 @@
-use std::sync::atomic::Ordering;
 use std::sync::Arc;
 
-use atomic_enum::atomic_enum;
 use eyre::{eyre, Result};
 use tokio::io::AsyncWriteExt;
 use tokio::select;
+use tokio::sync::broadcast::Sender;
 use tokio::sync::RwLock;
 use tokio::{net::TcpListener, runtime::Runtime};
 use tokio_util::sync::{CancellationToken, DropGuard};
 
-#[atomic_enum]
+#[derive(Clone, Copy)]
 pub enum ListenerState {
     Disabled,
     Listening,
@@ -19,12 +18,13 @@ pub enum ListenerState {
 pub struct Listener {
     pub id: usize,
     pub port: u16,
+    pub event_state_changed: Sender<ListenerState>,
     runtime: Arc<Runtime>,
     inner: Arc<Inner>,
 }
 
 struct Inner {
-    state: AtomicListenerState,
+    state: std::sync::RwLock<ListenerState>,
     cancellation_token: RwLock<Option<DropGuard>>,
 }
 
@@ -33,32 +33,31 @@ impl Listener {
         Listener {
             id,
             port,
+            event_state_changed: Sender::new(16),
             runtime,
             inner: Arc::new(Inner {
-                state: AtomicListenerState::new(ListenerState::Disabled),
+                state: std::sync::RwLock::new(ListenerState::Disabled),
                 cancellation_token: RwLock::default(),
             }),
         }
     }
 
     pub async fn start(&self) -> Result<()> {
-        let inner = Arc::<Inner>::downgrade(&self.inner);
         let mut cancellation_token = self.inner.cancellation_token.write().await;
         if cancellation_token.is_some() {
             return Err(eyre!("Listener already started."));
         }
 
+        let listener = TcpListener::bind(("0.0.0.0", self.port)).await?;
+
         let new_cancellation_token = CancellationToken::new();
         let child_cancellation_token = new_cancellation_token.child_token();
         *cancellation_token = Some(new_cancellation_token.drop_guard());
 
-        drop(cancellation_token);
-
-        let listener = TcpListener::bind(("0.0.0.0", self.port)).await?;
-
-        self.inner
-            .state
-            .store(ListenerState::Listening, Ordering::Relaxed);
+        *self.inner.state.write().unwrap() = ListenerState::Listening;
+        let inner = Arc::<Inner>::downgrade(&self.inner);
+        let event_state_changed = self.event_state_changed.clone();
+        let _ = event_state_changed.send(ListenerState::Listening);
 
         self.runtime.spawn(async move {
             run_listener(listener, child_cancellation_token).await;
@@ -67,12 +66,10 @@ impl Listener {
                 println!("Inner dropped.");
                 return;
             };
-            let mut cancellation_token = inner.cancellation_token.write().await;
-            *cancellation_token = None;
 
-            inner
-                .state
-                .store(ListenerState::Disabled, Ordering::Relaxed);
+            *inner.cancellation_token.write().await = None;
+            *inner.state.write().unwrap() = ListenerState::Disabled;
+            let _ = event_state_changed.send(ListenerState::Disabled);
         });
 
         Ok(())
@@ -89,7 +86,7 @@ impl Listener {
     }
 
     pub fn get_state(&self) -> ListenerState {
-        self.inner.state.load(Ordering::Relaxed)
+        *self.inner.state.read().unwrap()
     }
 }
 

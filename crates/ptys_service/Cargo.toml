@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 ptys_network = { path = "../ptys_network" }
+ptys_common = { path = "../ptys_common" }
 async-trait = { workspace = true }
 eyre = { workspace = true }
 tokio = { workspace = true }
