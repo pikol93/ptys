@@ -17,7 +17,7 @@ fn main() -> anyhow::Result<()> {
 
     // Execute code generator with auto-detected config
     codegen::generate(
-        Config::from_config_file("../../ptys_app/flutter_rust_bridge.yaml")?.unwrap(),
+        Config::from_config_file("../ptys_app/flutter_rust_bridge.yaml")?.unwrap(),
         Default::default(),
     )
 }

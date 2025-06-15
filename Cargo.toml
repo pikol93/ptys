@@ -1,9 +1,9 @@
 [workspace]
 members = [
-    "crates/ptys_network",
-    "crates/ptys_app_ffi",
-    "crates/ptys_service",
-    "crates/ptys_common",
+    "ptys_network",
+    "ptys_app_ffi",
+    "ptys_service",
+    "ptys_common",
 ]
 resolver = "2"
 
