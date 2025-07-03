@@ -1,9 +1,11 @@
-use std::sync::Arc;
+use std::{ops::Deref, sync::Arc};
 
 use eyre::Result;
 use flutter_rust_bridge::DartFnFuture;
 use ptys_common::extension::sender::SenderExt;
-use ptys_network::{EventListenerAdded, EventListenerRemoved, EventListenerStateChanged};
+use ptys_network::{
+    listener::ListenerId, EventListenerAdded, EventListenerRemoved, EventListenerStateChanged,
+};
 
 use crate::service::{get_runtime, get_service};
 
@@ -56,7 +58,7 @@ pub fn subscribe_listener_added(
     get_service()
         .network
         .event_listener_added
-        .event_subscribe(get_runtime(), callback);
+        .event_subscribe(get_runtime().deref(), callback);
 }
 
 pub fn subscribe_listener_removed(
@@ -71,7 +73,7 @@ pub fn subscribe_listener_removed(
     get_service()
         .network
         .event_listener_removed
-        .event_subscribe(get_runtime(), callback);
+        .event_subscribe(get_runtime().deref(), callback);
 }
 
 pub fn subscribe_listener_changed_state(
@@ -81,14 +83,16 @@ pub fn subscribe_listener_changed_state(
         let dart_callback = Arc::new(dart_callback);
         move |event: EventListenerStateChanged| {
             let dart_callback = dart_callback.clone();
-            get_runtime().spawn(async move { dart_callback(event.listener_id as i64, event.state.into()).await});
+            get_runtime().spawn(async move {
+                dart_callback(event.listener_id as i64, event.state.into()).await
+            });
         }
     };
 
     get_service()
         .network
         .event_listener_state_changed
-        .event_subscribe(get_runtime(), callback);
+        .event_subscribe(get_runtime().deref(), callback);
 }
 
 pub async fn get_listeners() -> Vec<Listener> {
@@ -122,14 +126,16 @@ pub async fn start_listener(id: i64) -> Result<(), String> {
 }
 
 pub async fn stop_listener(id: i64) -> Result<(), String> {
-    let id = id as usize;
+    let target_id = ListenerId(id as usize);
     get_service()
         .network
+        .listeners
         .iter_listeners(|listeners| {
             listeners
                 .iter()
-                .filter(|listener| listener.id == id)
+                .filter(|(id, _)| *id == target_id)
                 .next()
+                .map(|(_, listener)| listener)
                 .map(Clone::clone)
         })
         .ok_or("Could not find listener.")?

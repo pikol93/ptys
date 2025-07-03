@@ -11,7 +11,7 @@ pub struct Service {
 impl Service {
     pub fn new(runtime: Arc<Runtime>) -> Self {
         Self {
-            network: Arc::new(Network::new(runtime)),
+            network: Arc::new(Network::initialize_arc(runtime)),
         }
     }
 }

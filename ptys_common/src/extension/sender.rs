@@ -1,4 +1,4 @@
-use std::any::type_name;
+use std::{any::type_name, borrow::Borrow};
 
 use log::{debug, error};
 use tokio::{
@@ -12,7 +12,7 @@ where
 {
     fn event_subscribe<R, L>(&self, runtime: R, on_event: L)
     where
-        R: AsRef<Runtime>,
+        R: Borrow<Runtime>,
         L: Fn(T) + Send + 'static;
 }
 
@@ -22,11 +22,11 @@ where
 {
     fn event_subscribe<R, L>(&self, runtime: R, on_event: L)
     where
-        R: AsRef<Runtime>,
+        R: Borrow<Runtime>,
         L: Fn(T) + Send + 'static,
     {
         let mut rx = self.subscribe();
-        runtime.as_ref().spawn(async move {
+        runtime.borrow().spawn(async move {
             loop {
                 match rx.recv().await {
                     Ok(item) => on_event(item),
